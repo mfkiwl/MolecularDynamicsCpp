@@ -17,6 +17,15 @@ public:
 	Vec3 velocity;
 	real temperature;
 
+	Particle()
+	{
+		number = 0;
+		mass = 0;
+		position = Vec3(0,0,0);
+		velocity = Vec3(0, 0, 0);
+		temperature=0;
+	}
+
 	Particle(int number, real mass, real epsilon, real sigma, real kB, const Vec3& position, const Vec3& velocity)
 		: number(number), lj_(epsilon, sigma, kB), mass(mass), position(position), velocity(velocity) {}
 

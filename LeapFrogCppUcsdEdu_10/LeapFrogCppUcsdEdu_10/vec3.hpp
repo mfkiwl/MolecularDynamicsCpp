@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <string>
+#include <sstream>
 
 class Vec3
 {
@@ -97,14 +99,23 @@ public:
 		return Vec3(x / len, y / len, z / len);
 	}
 
-	friend Vec3 operator*(double scalar, const Vec3& vec)
-	{
+	std::string toString() const {
+		std::stringstream ss;
+		ss << "(" << x << "," << y << "," << z << ")";
+		return ss.str();
+	}
+
+	friend Vec3 operator*(double scalar, const Vec3& vec) {
 		return Vec3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
 	}
 
 	friend Vec3 operator/(double scalar, const Vec3& vec) {
 		return Vec3(vec.x / scalar, vec.y / scalar, vec.z / scalar);
 	}
+
+	void print() {
+		std::cout << "(" << x << "," << y << "," << z << ")";
+	}
 };
 
-#endif // !VEC3_HPP
+#endif

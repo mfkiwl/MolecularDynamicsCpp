@@ -23,7 +23,7 @@ TEST(TestCaseName, TestLennardJonesAcceleration)
 {
 	Vec3 diatance(4.0, 4.0, 4.0);
 
-	Vec3 acceleration = lj.getAcceleration(diatance, Constants::MASS);
+	Vec3 acceleration = lj.getAcceleration(diatance, Constants::ATOMIC_MASS);
 
 	//x=-5.8906850635166447e-08 
 	//y=-5.8906850635166447e-08 

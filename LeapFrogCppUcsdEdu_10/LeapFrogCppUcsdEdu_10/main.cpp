@@ -6,6 +6,6 @@ int main()
 	Simulation sim;
 	sim.run();
 
-	//////getchar(); // Wait for a keypress
+	getchar(); // Wait for a keypress
 }
 

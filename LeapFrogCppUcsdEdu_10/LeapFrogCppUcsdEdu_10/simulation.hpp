@@ -38,12 +38,12 @@ public:
 			Integrator::Lepfrog(system_.getParticles(), Constants::DT);
 
 			// Save the trajectory every 100 steps
-			if (step % Constants::SAVE_TRAJECTORY == 0)
-			{
+			//if (step % Constants::SAVE_TRAJECTORY == 0)
+			//{
 				FileIO::writeTrajectoryToFile(Constants::TRAJECTORY_FILE, system_.getParticles());
-			}
+			//}
 
-			if (step % Constants::SAVE_ENERGY == 0)
+			//if (step % Constants::SAVE_ENERGY == 0)
 			{
 				system_.computeEnergy();
 
@@ -61,16 +61,14 @@ public:
 			}
 
 			// Adjust the temperature every `X` steps
-			if (step % Constants::TEMP_ADJUST_STEP == 0)
-			{
-				// Calculate the current temperature
-				double currentTemperature = system_.getTemperature();
-
-				// Adjust the temperature
+			//if (step % Constants::TEMP_ADJUST_STEP == 0)
+			//{
+			//	// Calculate the current temperature
+				
+			//
+			//	// Adjust the temperature
 				system_.setTemperature(Constants::DELTA_TEMP);
-			}
-
-			
+			//}
 		}
 	}
 };

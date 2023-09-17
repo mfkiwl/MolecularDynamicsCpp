@@ -14,6 +14,13 @@ public:
 	real sigma;
 
 public:
+	LennardJones()
+	{
+		kB = 0;
+		epsilon = 0;
+		sigma = 0;
+	}
+
 	LennardJones(double epsilon, double sigma, real kB) : epsilon(epsilon), sigma(sigma), kB(kB) {}
 
 	real getPotential(const Vec3& distance) const
