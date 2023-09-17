@@ -1,0 +1,1002 @@
+```
+======================
+File name: common.hpp
+======================
+#ifndef COMMON_HPP
+#define COMMON_HPP
+
+#include <string>
+#include <iostream>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <cmath>
+
+typedef double real;
+
+class Constants 
+{
+public:
+	static const real KB;
+	static const real EPSILON;
+	static const real SIGMA;
+	static const real MASS;
+	static const int SAVE_TRAJECTORY;
+	static const int SAVE_ENERGY;
+	static const int TEMP_ADJUST_STEP;
+	static const real DELTA_TEMP;
+
+	static const int N;  // number of particles
+	static const real BOX_SIZE; // size of the simulation box
+	static const real MAX_VELOCITY;   // maximum initial velocity
+	static const real DT;   // time step
+	static const int N_STEPS;   // number of time steps
+	static const real T0; // initial temperature in KB
+	static const real TEMP_TARGET; // target temperature in KB
+
+	static const std::string TRAJECTORY_FILE;
+	static const std::string ENERGY_FILE;
+
+	static const real TOLERANCE;
+};
+
+const real Constants::KB = 8.6173324e-5;
+const real Constants::EPSILON = 0.997 * KB;
+const real Constants::SIGMA = 3.405;
+const real Constants::MASS = 39.948;
+const int Constants::SAVE_TRAJECTORY = 10;
+const int Constants::SAVE_ENERGY = 10;
+const int Constants::TEMP_ADJUST_STEP = 10;
+const real Constants::DELTA_TEMP = 50.00;
+
+const int Constants::N = 5;  // number of particles
+const real Constants::BOX_SIZE = 10.0; // size of the simulation box
+const real Constants::MAX_VELOCITY = 0.1;   // maximum initial velocity
+const real Constants::DT = 0.01;   // time step
+const int Constants::N_STEPS = 100;   // number of time steps
+const real Constants::T0 = 70.0 * KB; // initial temperature in KB
+const real Constants::TEMP_TARGET = 300.0 * KB; // target temperature in KB
+
+const std::string Constants::TRAJECTORY_FILE = "trajectory.txt";
+const std::string Constants::ENERGY_FILE = "energy.txt";
+
+const real Constants::TOLERANCE = 1e-5;
+
+#endif // !COMMON_HPP
+======================
+
+
+
+
+======================
+File name: energy.hpp
+======================
+#pragma once
+
+#include "common.hpp"
+
+struct EnergyData
+{
+	int step_no;
+	real TotalEnergy;//ok
+	real Poten_energy;//ok
+	real Pot_engy_repulsive;//ok
+	real Pot_engy_attractive;//ok
+	real Pot_engy_balloon;
+	real Kinetic_engy;//ok
+};
+
+======================
+
+
+
+
+======================
+File name: file_io.hpp
+======================
+#pragma once
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <random>
+#include <fstream>
+#include <iomanip>
+
+#include "common.hpp"
+#include "energy.hpp" 
+#include "particle.hpp"
+
+class FileIO
+{
+public:
+	static void clearFile(const std::string& filename)
+	{
+		std::ofstream file(filename, std::ofstream::out | std::ofstream::trunc); // Open the file in truncation mode
+
+		if (!file.is_open())
+		{
+			std::cerr << "Error opening file!" << std::endl;
+			return;
+		}
+
+		file.close(); // Close the file
+	}
+
+	static void writeTrajectoryToFile(const std::string& filename, const std::vector<Particle> particles)
+	{
+		int n_particles = particles.size();
+
+		std::ofstream file(filename, std::ios_base::app); // Open the file in append mode
+
+		if (file.is_open())
+		{
+			// Set the precision and fixed format for floating-point values
+			file << std::fixed << std::setprecision(3);
+
+			for (int i = 0; i < n_particles ; i++)
+			{
+				file
+					<< std::setw(7) << particles[i].position.x << " "
+					<< std::setw(7) << particles[i].position.y << " "
+					<< std::setw(7) << particles[i].position.z << " "
+					<< std::setw(10) << " ";
+			}
+			file << "\n";
+			file.close();
+			std::cout << "Trajectory saved to file: " << filename.c_str() << std::endl;
+		}
+		else
+		{
+			std::cout << "Unable to open the file: " << filename.c_str() << std::endl;
+		}
+	}
+
+	static void writeEnergyToFile(const std::string& filename, const EnergyData& energy)
+	{
+		std::ofstream file(filename, std::ios_base::app); // Open the file in append mode
+
+		if (file.is_open())
+		{
+			// Write the row to the file
+			file << std::fixed << std::setprecision(2) << energy.TotalEnergy << ","
+				<< std::fixed << std::setprecision(2) << energy.Poten_energy << ","
+				<< std::fixed << std::setprecision(2) << energy.Pot_engy_repulsive << ","
+				<< std::fixed << std::setprecision(2) << energy.Pot_engy_attractive << ","
+				<< std::fixed << std::setprecision(2) << energy.Pot_engy_balloon << ","
+				<< std::fixed << std::setprecision(2) << energy.Kinetic_engy << "\n";
+
+			file.close();
+			std::cout << "Energy saved to file: " << filename.c_str() << std::endl;
+		}
+		else
+		{
+			std::cout << "Unable to open the file: " << filename.c_str() << std::endl;
+		}
+	}
+};
+
+======================
+
+
+
+
+======================
+File name: integrator.hpp
+======================
+#ifndef INTEGRATOR_HPP
+#define INTEGRATOR_HPP
+
+#include "Particle.hpp"
+
+class Integrator
+{
+public:
+	static void Lepfrog(std::vector<Particle>& particles_, double dt)
+	{
+		int n_particles = particles_.size();
+
+		// Compute acceleration for all particles
+		for (int i = 0; i < n_particles; i++)
+		{
+			Particle& particle = particles_[i];
+			Vec3 acceleration;
+			for (int j = 0; j < n_particles; j++)
+			{
+				if (i != j)
+				{
+					acceleration += particle.getAcceleration(particles_[j]);
+				}
+			}
+			particle.velocity += 0.5 * dt * acceleration; // advance velocity by half-step
+		}
+
+		// Update position and complete velocity step for all particles
+		for (int i = 0; i < n_particles; i++)
+		{
+			Particle& particle = particles_[i];
+			particle.position += dt * particle.velocity; // advance position by full-step
+
+			Vec3 acceleration;
+			for (int j = 0; j < n_particles; j++)
+			{
+				if (i != j)
+				{
+					acceleration += particle.getAcceleration(particles_[j]);
+				}
+			}
+			particle.velocity += 0.5 * dt * acceleration; // complete velocity step
+		}
+	}
+};
+
+#endif // !INTEGRATOR_HPP
+======================
+
+
+
+
+======================
+File name: lennard_jones.hpp
+======================
+#ifndef LJ_HPP
+#define LJ_HPP
+
+#include <vector>
+
+#include "common.hpp"
+#include "vec3.hpp"
+
+class LennardJones
+{
+public:
+	real kB;
+	real epsilon;
+	real sigma;
+
+public:
+	LennardJones(double epsilon, double sigma, real kB) : epsilon(epsilon), sigma(sigma), kB(kB) {}
+
+	// Returns Lennard-Jones potential
+	real getPotential(const Vec3& distance) const
+	{
+		real r_mag = std::sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
+		real s_over_r = sigma / r_mag;
+		real s_over_r6 = pow(s_over_r, 6);
+		return 4.0 * epsilon * (s_over_r6 * s_over_r6 - s_over_r6);
+	}
+
+	real getPotentialAttractive(const Vec3& distance) const
+	{
+		real r_mag = std::sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
+		real s_over_r = sigma / r_mag;
+		real s_over_r6 = pow(s_over_r, 6);
+		real attrPotential = (-4.0) * epsilon * s_over_r6;
+		return attrPotential;
+	}
+
+	real getPotentialRepulsive(const Vec3& distance) const
+	{
+		real r_mag = std::sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
+		real s_over_r = sigma / r_mag;
+		real s_over_r12 = pow(s_over_r, 12);
+		real repPotential = 4.0 * epsilon * s_over_r12;
+		return repPotential;
+	}
+
+	/*real getPotential(const Vec3& distance) const
+	{
+		real attr = getPotentialAttractive(distance);
+		real rep = getPotentialRepulsive(distance);
+		return attr + rep;
+	}*/
+
+	// Derivative of the Lennard-Jones potential
+	Vec3 getForceApprox(const Vec3& distance) const
+	{
+		// Define a small distance for the derivative approximation
+		real dr = 1e-6;
+		Vec3 force;
+		std::vector<Vec3> r_plus_dr = { distance, distance, distance };
+		r_plus_dr[0].x += dr;
+		r_plus_dr[1].y += dr;
+		r_plus_dr[2].z += dr;
+
+		// The force is the negative derivative of the potential energy
+		force.x = -(getPotential(r_plus_dr[0]) - getPotential(distance)) / dr;
+		force.y = -(getPotential(r_plus_dr[1]) - getPotential(distance)) / dr;
+		force.z = -(getPotential(r_plus_dr[2]) - getPotential(distance)) / dr;
+		return force;
+	}
+
+	Vec3 getAcceleration(const Vec3& distance, double mass) const
+	{
+		double rSquared = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
+		double r6 = std::pow(sigma * sigma / rSquared, 3);
+		double r12 = r6 * r6;
+
+		double magnitude = 24.0 * epsilon / mass * (2.0 * r12 - r6) / rSquared;
+
+		Vec3 acceleration(distance.x * magnitude, distance.y * magnitude, distance.z * magnitude);
+		return acceleration;
+	}
+
+	// Derivative of the Lennard-Jones potential
+	Vec3 getForce(Vec3 position) const
+	{
+		real r_mag = std::sqrt(position.x * position.x + position.y * position.y + position.z * position.z);
+		real s_over_r = sigma / r_mag;
+		real s_over_r6 = s_over_r * s_over_r * s_over_r * s_over_r * s_over_r * s_over_r;
+		real s_over_r12 = s_over_r6 * s_over_r6;
+		real factor = 24.0 * epsilon * (2.0 * s_over_r12 - s_over_r6) / (r_mag * r_mag * r_mag);
+
+		Vec3 force;
+		force.x = factor * position.x;
+		force.y = factor * position.y;
+		force.z = factor * position.z;
+		return force;
+	}
+
+	real getKineticEnergy(real mass, const Vec3& velocity) const
+	{
+		real vx = velocity.x;
+		real vy = velocity.y;
+		real vz = velocity.z;
+		return 0.5 * mass * (vx * vx + vy * vy + vz * vz);
+	}
+
+	real getTotalEnergy(real mass, const Vec3& distance, const Vec3& velocity) const
+	{
+		real potentialEnergy = getPotential(distance);
+		real kineticEnergy = getKineticEnergy(mass, velocity);
+		return potentialEnergy + kineticEnergy;
+	}
+
+	// Calculate the temperature using the kinetic energy of the atom
+	double getTemperature(real mass, const Vec3& velocity) const
+	{		
+		double kineticEnergy = getKineticEnergy(mass, velocity);
+		double temperature = (2.0 * kineticEnergy) / (3.0 * kB);
+		return temperature;
+	}
+
+	void setTemperature(Vec3& velocity, real currentTemperature, real targetTemperature) const
+	{
+		real scalingFactor = std::sqrt(targetTemperature / currentTemperature);
+		velocity *= scalingFactor;
+	}
+};
+#endif // !LJ_HPP
+
+
+
+======================
+
+
+
+
+======================
+File name: main.cpp
+======================
+#include "simulation.hpp"
+#include <cstdio>
+
+double truncate_(double f)
+{
+	return std::trunc(f * 10000.0);
+}
+
+int main()
+{
+	//Simulation sim;
+	//sim.run();
+	LennardJones lj(Constants::EPSILON, Constants::SIGMA, Constants::KB);
+
+	Vec3 diatance(4.0, 4.0, 4.0);
+
+	real attractive = lj.getPotentialAttractive(diatance);
+	real repulsive = lj.getPotentialRepulsive(diatance);
+
+	std::cout << attractive << std::endl;
+	std::cout << repulsive << std::endl;
+
+	real attractive2 = truncate_(attractive);
+	real repulsive2 = truncate_(repulsive);
+
+	std::cout << attractive2 << std::endl;
+	std::cout << repulsive2 << std::endl;
+
+	getchar(); // Wait for a keypress
+}
+
+
+======================
+
+
+
+
+======================
+File name: particle.hpp
+======================
+#ifndef PARTICLE_HPP
+#define PARTICLE_HPP
+
+#include "common.hpp"
+#include "vec3.hpp"
+#include "lennard_jones.hpp"
+
+class Particle 
+{
+private:
+	LennardJones lj_;
+
+public:
+	int number;
+	real mass;
+	Vec3 position;
+	Vec3 velocity;
+	real temperature;
+
+	Particle(int number, real mass, real epsilon, real sigma, real kB, const Vec3& position, const Vec3& velocity)
+		: number(number), lj_(epsilon, sigma, kB), mass(mass), position(position), velocity(velocity) {}
+
+	Vec3 getForce()
+	{
+		return lj_.getForce(position);
+	}
+
+	real getKineticEnergy() const
+	{
+		return lj_.getKineticEnergy(mass, velocity);
+	}
+
+	Vec3 getAcceleration(const Particle& other) const
+	{
+		Vec3 distance = position - other.position;
+		return lj_.getAcceleration(distance, mass);
+	}
+
+	real getPotentialEnergyRepulsive(const Particle& other) const
+	{
+		Vec3 distance = position - other.position;
+		return lj_.getPotentialRepulsive(distance);
+	}
+
+	real getPotentialEnergyAttractive(const Particle& other) const
+	{
+		Vec3 distance = position - other.position;
+		return lj_.getPotentialAttractive(distance);
+	}
+
+	real getPotentialEnergy(const Particle& other) const
+	{
+		Vec3 distance = position - other.position;
+		return lj_.getPotential(distance);
+	}
+
+	real getTotalEnergy(const Particle& other) const
+	{
+		real potentialEnergy = getPotentialEnergy(other);
+		real kineticEnergy = getKineticEnergy();
+		return potentialEnergy + kineticEnergy;
+	}
+
+	real getTemperature()
+	{
+		return lj_.getTemperature(mass, velocity);
+	}
+
+	void setTemperature(real targetTemperature)
+	{
+		lj_.setTemperature(velocity, temperature, targetTemperature);
+	}
+
+	Particle& operator+=(const Particle& other) {
+		mass += other.mass;
+		position += other.position;
+		velocity += other.velocity;
+		return *this;
+	}
+
+	Particle& operator-=(const Particle& other) {
+		mass -= other.mass;
+		position -= other.position;
+		velocity -= other.velocity;
+		return *this;
+	}
+
+	Particle operator+(const Particle& other) const {
+		Particle result(*this);
+		result += other;
+		return result;
+	}
+
+	Particle operator-(const Particle& other) const {
+		Particle result(*this);
+		result -= other;
+		return result;
+	}
+
+	Particle& operator*=(real scalar) {
+		mass *= scalar;
+		position *= scalar;
+		velocity *= scalar;
+		return *this;
+	}
+
+	Particle operator*(real scalar) const {
+		Particle result(*this);
+		result *= scalar;
+		return result;
+	}
+
+	Particle& operator/=(real scalar) {
+		mass /= scalar;
+		position /= scalar;
+		velocity /= scalar;
+		return *this;
+	}
+
+	Particle operator/(real scalar) const {
+		Particle result(*this);
+		result /= scalar;
+		return result;
+	}
+
+	/*
+	static void MovePositionsToCenterOfMass(std::vector<Particle>& particles)
+	{
+		Vec3 centerOfMass;
+		real totalMass = 0.0;
+
+		// Calculate the total mass and the weighted sum of positions
+		for (const auto& particle : particles)
+		{
+			centerOfMass += particle.position * particle.mass;
+			totalMass += particle.mass;
+		}
+
+		// Calculate the center of mass
+		centerOfMass /= totalMass;
+
+		// Move the positions relative to the center of mass
+		for (auto& particle : particles)
+		{
+			particle.position -= centerOfMass;
+		}
+	}
+
+	static void MoveVelocitiesToCenterOfMass(std::vector<Particle>& particles)
+	{
+		Vec3 centerOfMassVelocity;
+		real totalMass = 0.0;
+
+		// Calculate the total mass and the weighted sum of velocities
+		for (const auto& particle : particles)
+		{
+			centerOfMassVelocity += particle.velocity * particle.mass;
+			totalMass += particle.mass;
+		}
+
+		// Calculate the center of mass velocity
+		centerOfMassVelocity /= totalMass;
+
+		// Move the velocities relative to the center of mass velocity
+		for (auto& particle : particles)
+		{
+			particle.velocity -= centerOfMassVelocity;
+		}
+	}*/
+
+	static void MovePositionVelocityToCenterOfMass(std::vector<Particle>& particles_)
+	{
+		Vec3 centerOfMassVelocity;
+		Vec3 centerOfMass;
+		real totalMass = 0.0;
+
+		// Calculate the total mass and the weighted sum of positions
+		for (const auto& particle : particles_)
+		{
+			centerOfMass += particle.position * particle.mass;
+			centerOfMassVelocity += particle.velocity * particle.mass;
+			totalMass += particle.mass;
+		}
+
+		// Calculate the center of mass
+		centerOfMass /= totalMass;
+		centerOfMassVelocity /= totalMass;
+
+		// Move the positions relative to the center of mass
+		for (auto& particle : particles_)
+		{
+			particle.position -= centerOfMass;
+			particle.velocity -= centerOfMassVelocity;
+		}
+	}
+};
+#endif // !PARTICLE_HPP
+
+======================
+
+
+
+
+======================
+File name: simulation.hpp
+======================
+#ifndef SIM_HPP
+#define SIM_HPP
+
+#include "common.hpp"
+#include "vec3.hpp"
+#include "lennard_jones.hpp"
+#include "particle.hpp"
+#include "file_io.hpp"
+#include "system.hpp"
+#include "integrator.hpp"
+
+class Simulation
+{
+private:
+	System system_;
+
+public:
+	Simulation()
+	{
+		system_.dimension = Constants::BOX_SIZE;
+		system_.epsilon = Constants::EPSILON;
+		system_.kB = Constants::KB;
+		system_.mass = Constants::MASS;
+		system_.sigma = Constants::SIGMA;
+		system_.Initialize(Constants::T0);
+
+		FileIO::clearFile(Constants::TRAJECTORY_FILE);
+		FileIO::clearFile(Constants::ENERGY_FILE);
+	}
+
+	void run()
+	{
+		// Run the simulation
+		for (int step = 0; step < Constants::N_STEPS; step++)
+		{
+			Integrator::Lepfrog(system_.getParticles(), Constants::DT);
+
+			// Save the trajectory every 100 steps
+			if (step % Constants::SAVE_TRAJECTORY == 0)
+			{
+				FileIO::writeTrajectoryToFile(Constants::TRAJECTORY_FILE, system_.getParticles());
+			}
+
+			if (step % Constants::SAVE_ENERGY == 0)
+			{
+				EnergyData energy;
+				energy.step_no = step;
+				energy.TotalEnergy = system_.getTotalEnergy();
+				energy.Poten_energy = system_.getPotentialEnergy();
+
+				FileIO::writeEnergyToFile(Constants::ENERGY_FILE, energy);
+			}
+
+			// Adjust the temperature every `X` steps
+			if (step % Constants::TEMP_ADJUST_STEP == 0)
+			{
+				// Calculate the current temperature
+				double currentTemperature = system_.getTemperature();
+
+				// Adjust the temperature
+				system_.setTemperature(Constants::DELTA_TEMP);
+			}
+		}
+	}
+};
+
+#endif // !SIM_SYSTEM_HPP
+======================
+
+
+
+
+======================
+File name: system.hpp
+======================
+#ifndef SYSTEM_HPP
+#define SYSTEM_HPP
+
+#include "common.hpp"
+#include "vec3.hpp"
+#include "lennard_jones.hpp"
+#include "particle.hpp"
+#include "file_io.hpp"
+
+class System
+{
+private:
+	int count;
+	std::vector<Particle> particles_;
+
+public:
+	real dimension;
+	real sigma;
+	real epsilon;
+	real mass;
+	real kB;
+
+	System()
+	{
+	}
+
+	System(real sigma, real epsilon, real mass, real kB, real dimension): 
+		sigma(sigma), epsilon(epsilon), mass(mass), kB(kB), dimension(dimension)
+	{
+	}
+
+	Vec3 getAcceleration() const
+	{
+		Vec3 totalAcceleration(0.0, 0.0, 0.0);
+
+		for (const auto& particle : particles_)
+		{
+			Vec3 particleAcceleration(0.0, 0.0, 0.0);
+
+			for (const auto& other : particles_)
+			{
+				if (&particle != &other)
+				{
+					particleAcceleration += particle.getAcceleration(other);
+				}
+			}
+
+			totalAcceleration += particleAcceleration;
+		}
+
+		return totalAcceleration;
+	}
+
+	real getKineticEnergy() const
+	{
+		real totalKineticEnergy = 0.0;
+
+		for (const auto& particle : particles_)
+		{
+			totalKineticEnergy += particle.getKineticEnergy();
+		}
+
+		return totalKineticEnergy;
+	}
+
+	real getPotentialEnergyRepulsive() const
+	{
+		real totalPotentialEnergy = 0.0;
+
+		for (size_t i = 0; i < particles_.size(); i++)
+		{
+			const Particle& particle = particles_[i];
+
+			for (size_t j = i + 1; j < particles_.size(); j++)
+			{
+				const Particle& other = particles_[j];
+				totalPotentialEnergy += particle.getPotentialEnergyRepulsive(other);
+			}
+		}
+
+		return totalPotentialEnergy;
+	}
+
+	real getPotentialEnergyAttractive() const
+	{
+		real totalPotentialEnergy = 0.0;
+
+		for (size_t i = 0; i < particles_.size(); i++)
+		{
+			const Particle& particle = particles_[i];
+
+			for (size_t j = i + 1; j < particles_.size(); j++)
+			{
+				const Particle& other = particles_[j];
+				totalPotentialEnergy -= particle.getPotentialEnergyAttractive(other);
+			}
+		}
+
+		return totalPotentialEnergy;
+	}
+
+	real getPotentialEnergy() const
+	{
+		return getPotentialEnergyRepulsive() + getPotentialEnergyAttractive();
+	}
+
+	real getTotalEnergy() const
+	{
+		return getKineticEnergy() + getPotentialEnergy();
+	}
+
+	double getTemperature() const
+	{
+		int numParticles = particles_.size();
+		
+		double totalKineticEnergy = getKineticEnergy();
+
+		double temperature = (2.0 * totalKineticEnergy) / (3.0 * kB * numParticles);
+		return temperature;
+	}
+
+	void setTemperature(double deltaTemperature)
+	{
+		double currentTemperature = getTemperature();
+		double targetTemperature = currentTemperature + deltaTemperature;
+
+		for (auto& particle : particles_)
+		{
+			particle.setTemperature(targetTemperature);
+		}
+	}
+
+	std::vector<Particle>& getParticles()
+	{
+		return particles_;
+	}
+
+	void Initialize(real T0)
+	{
+		const double a = sigma / 2.0; // Length unit a determined by σ = 2a
+
+		const double cellPositions[4][3] = {
+												{ 0.5 * a, 0.5 * a, 0.5 * a },
+												{ 0.5 * a, 1.5 * a, 1.5 * a },
+												{ 1.5 * a, 0.5 * a, 1.5 * a },
+												{ 1.5 * a, 1.5 * a, 0.5 * a }
+											};
+
+		const double cellShifts[3] = { 2.0 * a, 2.0 * a, 2.0 * a };
+
+		int count = 0;
+
+		for (int x = 0; x < dimension; ++x) 
+		{
+			for (int y = 0; y < dimension; ++y) 
+			{
+				for (int z = 0; z < dimension; ++z) 
+				{
+					for (int i = 0; i < 4; ++i) 
+					{
+						double shiftX = x * cellShifts[0];
+						double shiftY = y * cellShifts[1];
+						double shiftZ = z * cellShifts[2];
+
+						
+						int atom_number = count + 1;
+
+						// initialize position
+						Vec3 position;						
+						position.x = cellPositions[i][0] + shiftX;
+						position.y = cellPositions[i][1] + shiftY;
+						position.z = cellPositions[i][2] + shiftZ;
+
+						// initialize velocity
+						Vec3 velocity;
+						velocity.x = -6.0 + (rand() * 12.0) / RAND_MAX;
+						velocity.y = -6.0 + (rand() * 12.0) / RAND_MAX;
+						velocity.z = -6.0 + (rand() * 12.0) / RAND_MAX;
+
+						Particle atom(atom_number, mass, epsilon, sigma, kB, position, velocity);
+						
+						// set initial temperature
+						atom.setTemperature(T0);
+
+						particles_.push_back(atom);
+
+						count++;
+					}
+				}
+			}
+		}
+
+		Particle::MovePositionVelocityToCenterOfMass(particles_);
+	}
+};
+
+#endif // !SIM_SYSTEM_HPP
+======================
+
+
+
+
+======================
+File name: vec3.hpp
+======================
+
+#ifndef VEC3_HPP
+#define VEC3_HPP
+#include <iostream>
+#include <cmath>
+
+class Vec3
+{
+public:
+	double x, y, z;
+
+	Vec3() : x(0.0), y(0.0), z(0.0) {}
+
+	Vec3(double x, double y, double z) : x(x), y(y), z(z) {}
+
+	Vec3 operator+(const Vec3& other) const {
+		return Vec3(x + other.x, y + other.y, z + other.z);
+	}
+
+	Vec3 operator-(const Vec3& other) const {
+		return Vec3(x - other.x, y - other.y, z - other.z);
+	}
+
+	Vec3 operator*(double scalar) const {
+		return Vec3(x * scalar, y * scalar, z * scalar);
+	}
+
+	Vec3 operator/(double scalar) const {
+		return Vec3(x / scalar, y / scalar, z / scalar);
+	}
+
+	Vec3& operator+=(const Vec3& other) {
+		x += other.x;
+		y += other.y;
+		z += other.z;
+		return *this;
+	}
+
+	Vec3& operator-=(const Vec3& other) {
+		x -= other.x;
+		y -= other.y;
+		z -= other.z;
+		return *this;
+	}
+
+	Vec3& operator*=(double scalar) {
+		x *= scalar;
+		y *= scalar;
+		z *= scalar;
+		return *this;
+	}
+
+	Vec3& operator/=(double scalar) {
+		x /= scalar;
+		y /= scalar;
+		z /= scalar;
+		return *this;
+	}
+
+	double dot(const Vec3& other) const {
+		return x * other.x + y * other.y + z * other.z;
+	}
+
+	Vec3 cross(const Vec3& other) const {
+		return Vec3(
+			y * other.z - z * other.y,
+			z * other.x - x * other.z,
+			x * other.y - y * other.x
+		);
+	}
+
+	double length() const {
+		return std::sqrt(x * x + y * y + z * z);
+	}
+
+	Vec3 normalized() const {
+		double len = length();
+		return Vec3(x / len, y / len, z / len);
+	}
+
+	friend Vec3 operator*(double scalar, const Vec3& vec)
+	{
+		return Vec3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
+	}
+
+	friend Vec3 operator/(double scalar, const Vec3& vec) {
+		return Vec3(vec.x / scalar, vec.y / scalar, vec.z / scalar);
+	}
+};
+#endif // !VEC3_HPP
+
+======================
+
+
+
+
+```
