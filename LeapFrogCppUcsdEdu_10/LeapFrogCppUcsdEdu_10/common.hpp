@@ -43,7 +43,7 @@ const real Constants::EPSILON = 1.19;
 const real Constants::ATOMIC_MASS = 39.948;
 
 const int Constants::N = 9;  // number of particles
-const int Constants::N_STEPS = 6;   // number of time steps
+const int Constants::N_STEPS = 100;   // number of time steps
 const int Constants::SAVE_TRAJECTORY = 2;
 const int Constants::SAVE_ENERGY = 2;
 const int Constants::TEMP_ADJUST_STEP = 2;

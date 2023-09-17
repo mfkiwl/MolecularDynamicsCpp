@@ -77,7 +77,7 @@ public:
 
 	void setTemperature(real targetTemperature)
 	{
-		lj_.setTemperature(velocity, temperature, targetTemperature);
+		lj_.setTemperature(targetTemperature, mass, velocity);
 	}
 
 	Particle& operator+=(const Particle& other) {

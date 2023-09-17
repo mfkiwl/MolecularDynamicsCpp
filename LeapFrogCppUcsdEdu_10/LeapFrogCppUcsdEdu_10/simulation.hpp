@@ -70,6 +70,8 @@ public:
 				system_.setTemperature(Constants::DELTA_TEMP);
 			//}
 		}
+
+		std::cout << "\n\n\nSimulation is complete!" << std::endl;
 	}
 };
 

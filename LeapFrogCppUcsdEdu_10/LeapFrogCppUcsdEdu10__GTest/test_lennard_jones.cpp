@@ -3,6 +3,14 @@
 
 LennardJones lj(Constants::EPSILON, Constants::SIGMA, Constants::KB);
 
+TEST(TestCaseName, TestLennardTemperature)
+{
+	Vec3 velocity(1.0, 1.0, 1.0);
+	real tenpe = lj.getTemperature(Constants::ATOMIC_MASS, velocity);
+
+	char ch = '\n';
+}
+
 TEST(TestCaseName, TestLennardJonesFormula) 
 {
 	Vec3 diatance(4.0, 4.0, 4.0);	

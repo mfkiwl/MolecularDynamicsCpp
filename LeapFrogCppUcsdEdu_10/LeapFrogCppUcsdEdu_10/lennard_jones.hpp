@@ -108,7 +108,7 @@ public:
 		return potentialEnergy + kineticEnergy;
 	}
 
-	double getTemperature(real mass, const Vec3& velocity) const
+	/*double getTemperature(real mass, const Vec3& velocity) const
 	{		
 		double kineticEnergy = getKineticEnergy(mass, velocity);
 		double temperature = (2.0 * kineticEnergy) / (3.0 * kB);
@@ -119,7 +119,25 @@ public:
 	{
 		real scalingFactor = std::sqrt(targetTemperature / currentTemperature);
 		velocity *= scalingFactor;
+	}*/
+
+	double getTemperature(double mass, const Vec3& velocity) const
+	{
+		double kineticEnergy = getKineticEnergy(mass, velocity);
+		double degreesOfFreedom = 3; // Assuming 3 degrees of freedom for simplicity
+		double kB_Nf = kB * degreesOfFreedom;
+		double temperature = (2.0 / (kB_Nf * mass)) * kineticEnergy;
+		return temperature;
 	}
+
+	void setTemperature(double targetTemperature, double mass, Vec3& velocity) const
+	{
+		double currentTemperature = getTemperature(mass, velocity);
+		double scalingFactor = std::sqrt(targetTemperature / currentTemperature);
+		velocity *= scalingFactor;
+	}
+
+	
 };
 #endif // !LJ_HPP
 
