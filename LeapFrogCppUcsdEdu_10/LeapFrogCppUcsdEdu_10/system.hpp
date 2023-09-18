@@ -16,19 +16,19 @@ private:
 	real totalPotentialEnergy_;
 	real totalKineticEnergy_;
 	real totalEnergy_;
-	real temperature_;
+	real currentTemperature_;
 
 public:
 	
 
 private:
-	int count_;
+	int particleCount_;
 	std::vector<Particle> particles_;
 
 public:
 	int getParticlesCount()
 	{
-		return count_;
+		return particleCount_;
 	}
 
 public:
@@ -46,9 +46,9 @@ public:
 		totalPotentialEnergy_ = 0.0;
 		totalKineticEnergy_ = 0.0;
 		totalEnergy_ = 0.0;
-		temperature_ = 0.0;
+		currentTemperature_ = 0.0;
 
-		count_ = 0;
+		particleCount_ = 0;
 
 		dimension = 0;
 		sigma = 0;
@@ -66,9 +66,9 @@ public:
 		totalPotentialEnergy_ = 0.0;
 		totalKineticEnergy_ = 0.0;
 		totalEnergy_ = 0.0;
-		temperature_ = 0.0;
+		currentTemperature_ = 0.0;
 
-		count_ = 0;
+		particleCount_ = 0;
 	}
 
 	EnergyData computeEnergy()
@@ -95,7 +95,7 @@ public:
 		}
 
 		totalEnergy_ = totalPotentialEnergy_ + totalKineticEnergy_;
-		temperature_ = (2.0 * totalKineticEnergy_) / (3.0 * kB * n_particles);
+		currentTemperature_ = (2.0 * totalKineticEnergy_) / (3.0 * kB * n_particles);
 
 		EnergyData energyData;
 		energyData.Kinetic_engy = 0.5 * totalKineticEnergy_;
@@ -109,7 +109,7 @@ public:
 
 	void setTemperature(real deltaTemperature)
 	{
-		real currentTemperature = temperature_;
+		real currentTemperature = currentTemperature_;
 		real targetTemperature = currentTemperature + deltaTemperature;
 
 		for (auto& particle : particles_)
