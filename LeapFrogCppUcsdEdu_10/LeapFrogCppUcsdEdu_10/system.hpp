@@ -77,9 +77,10 @@ public:
 	{
 		real currentTemperature = currentTemperature_;
 		real targetTemperature = currentTemperature + deltaTemperature;
-
+		// todo: calculate scaling factor that changes your temperature from the current value to the desired one
 		for (auto& particle : particles_)
 		{
+			// todo: in this loop multiply velocities by the factor
 			particle.setTemperature(targetTemperature);
 		}
 	}
