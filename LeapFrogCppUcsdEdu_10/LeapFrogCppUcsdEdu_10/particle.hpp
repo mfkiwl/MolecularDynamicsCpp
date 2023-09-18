@@ -69,24 +69,12 @@ public:
 		real kineticEnergy = getKineticEnergy();
 		return potentialEnergy + kineticEnergy;
 	}
-
-	real getTemperature()
-	{
-		return lj_.getTemperature(mass, velocity);
-	}
-
-	void setTemperature(real targetTemperature)
-	{
-		lj_.setTemperature(targetTemperature, mass, velocity);
-	}
-
+	
 	bool isWithinCutOff(const Particle& other, real rCutOff) const
 	{
 		Particle temp = *this;
 		Vec3 distance = temp.position - other.position;
-		double r = std::sqrt(	  distance.x * distance.x 
-								+ distance.y * distance.y 
-								+ distance.z * distance.z);
+		double r = distance.magnitude();
 		return r > rCutOff;
 	}
 
@@ -167,54 +155,5 @@ public:
 			particle.velocity -= centerOfMassVelocity;
 		}
 	}
-
-	#pragma region  [MovePositionsToCenterOfMass, MoveVelocitiesToCenterOfMass]
-	/*
-static void MovePositionsToCenterOfMass(std::vector<Particle>& particles)
-{
-	Vec3 centerOfMass;
-	real totalMass = 0.0;
-
-	// Calculate the total mass and the weighted sum of positions
-	for (const auto& particle : particles)
-	{
-		centerOfMass += particle.position * particle.mass;
-		totalMass += particle.mass;
-	}
-
-	// Calculate the center of mass
-	centerOfMass /= totalMass;
-
-	// Move the positions relative to the center of mass
-	for (auto& particle : particles)
-	{
-		particle.position -= centerOfMass;
-	}
-}
-
-static void MoveVelocitiesToCenterOfMass(std::vector<Particle>& particles)
-{
-	Vec3 centerOfMassVelocity;
-	real totalMass = 0.0;
-
-	// Calculate the total mass and the weighted sum of velocities
-	for (const auto& particle : particles)
-	{
-		centerOfMassVelocity += particle.velocity * particle.mass;
-		totalMass += particle.mass;
-	}
-
-	// Calculate the center of mass velocity
-	centerOfMassVelocity /= totalMass;
-
-	// Move the velocities relative to the center of mass velocity
-	for (auto& particle : particles)
-	{
-		particle.velocity -= centerOfMassVelocity;
-	}
-}*/
-#pragma endregion
-
-	
 };
 #endif // !PARTICLE_HPP

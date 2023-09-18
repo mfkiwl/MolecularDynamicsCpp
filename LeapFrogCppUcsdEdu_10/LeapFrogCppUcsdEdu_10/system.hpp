@@ -73,15 +73,30 @@ public:
 		particleCount_ = 0;
 	}
 
-	void setTemperature(real deltaTemperature)
+	double getTemperature()
 	{
-		real currentTemperature = currentTemperature_;
-		real targetTemperature = currentTemperature + deltaTemperature;
-		// todo: calculate scaling factor that changes your temperature from the current value to the desired one
-		for (auto& particle : particles_)
+		int n_particles = particles_.size();
+		real currentTemperature = 0.0;
+		for (int i = 0; i < n_particles; i++)
 		{
-			// todo: in this loop multiply velocities by the factor
-			particle.setTemperature(targetTemperature);
+			real lenSq = particles_[i].velocity.magnitudeSquared();
+
+			currentTemperature += 0.5 * mass * lenSq / n_particles;
+		}
+		return currentTemperature;
+	}
+
+	void setTemperature(real targetTemperature)
+	{
+		int n_particles = particles_.size();
+
+		real currentTemperature = getTemperature();
+
+		real scalingFactor = std::sqrt(targetTemperature / currentTemperature);
+
+		for (int i = 0; i < n_particles; i++)
+		{
+			particles_[i].velocity *= scalingFactor;
 		}
 	}
 
@@ -90,10 +105,79 @@ public:
 		return particles_;
 	}
 
-	void Initialize(real T0)
+	EnergyData computeEnergy()
 	{
-		//particles_.resize(Constants::N);
+		int n_particles = particles_.size();
+		int n_interactions = (n_particles * (n_particles - 1)) / 2;
 
+		double sumTotalEnergy = 0.0;
+		double sumSquaredTotalEnergy = 0.0;
+		double sumKineticEnergy = 0.0;
+		double sumSquaredKineticEnergy = 0.0;
+		double sumPotentialEnergy = 0.0;
+		double sumSquaredPotentialEnergy = 0.0;
+
+		for (size_t i = 0; i < n_particles; i++)
+		{
+			Vec3 particleAcceleration(0.0, 0.0, 0.0);
+
+			const Particle& particle = particles_[i];
+
+			for (size_t j = i + 1; j < n_particles; j++)
+			{
+				const Particle& other = particles_[j];			
+
+				// Calculate kinetic energy for the particle
+				double kineticEnergy = particle.getKineticEnergy();
+
+				// Calculate potential energy for the particle
+				double potentialEnergy = particle.getPotentialEnergy(other);
+
+				// Calculate total energy for the particle
+				double totalEnergy = particle.getTotalEnergy(other);
+
+				// Sum up the energies
+				sumTotalEnergy += totalEnergy;
+				sumSquaredTotalEnergy += totalEnergy * totalEnergy;
+				sumKineticEnergy += kineticEnergy;
+				sumSquaredKineticEnergy += kineticEnergy * kineticEnergy;
+				sumPotentialEnergy += potentialEnergy;
+				sumSquaredPotentialEnergy += potentialEnergy * potentialEnergy;
+			}
+		}
+
+		// Calculate mean values
+		double meanTotalEnergy = sumTotalEnergy / n_interactions;
+		double meanKineticEnergy = sumKineticEnergy / n_interactions;
+		double meanPotentialEnergy = sumPotentialEnergy / n_interactions;
+
+		// Calculate variances
+		double varianceTotalEnergy = (sumSquaredTotalEnergy / n_interactions) - (meanTotalEnergy * meanTotalEnergy);
+		double varianceKineticEnergy = (sumSquaredKineticEnergy / n_interactions) - (meanKineticEnergy * meanKineticEnergy);
+		double variancePotentialEnergy = (sumSquaredPotentialEnergy / n_interactions) - (meanPotentialEnergy * meanPotentialEnergy);
+
+		// Calculate standard deviations
+		double stdDevTotalEnergy = std::sqrt(varianceTotalEnergy);
+		double stdDevKineticEnergy = std::sqrt(varianceKineticEnergy);
+		double stdDevPotentialEnergy = std::sqrt(variancePotentialEnergy);
+
+		EnergyData energyData;
+		energyData.TotalEnergyMean = meanTotalEnergy;
+		energyData.TotalEnergyVariance = varianceTotalEnergy;
+		energyData.TotalEnergyStdDev = stdDevTotalEnergy;
+		energyData.KineticEngyMean = meanKineticEnergy;
+		energyData.KineticEngyVariance = varianceKineticEnergy;
+		energyData.KineticEngyStdDev = stdDevKineticEnergy;
+		energyData.PotenEnergyMean = meanPotentialEnergy;
+		energyData.PotenEnergyVariance = variancePotentialEnergy;
+		energyData.PotenEnergyStdDev = stdDevPotentialEnergy;
+
+		return energyData;
+	}
+
+
+	void initialize(real T0)
+	{
 		// Calculate the number of particles in each dimension of the cell
 		int particlesPerDimension = std::cbrt(Constants::N);
 
@@ -137,75 +221,6 @@ public:
 		std::string st = "";
 	}
 
-	EnergyData computeEnergy()
-	{
-		int n_particles = particles_.size();
-		int n_interactions = (n_particles * (n_particles - 1)) / 2;
-
-		double sumTotalEnergy = 0.0;
-		double sumSquaredTotalEnergy = 0.0;
-		double sumKineticEnergy = 0.0;
-		double sumSquaredKineticEnergy = 0.0;
-		double sumPotentialEnergy = 0.0;
-		double sumSquaredPotentialEnergy = 0.0;
-
-		for (size_t i = 0; i < n_particles; i++)
-		{
-			Vec3 particleAcceleration(0.0, 0.0, 0.0);
-
-			const Particle& particle = particles_[i];
-
-			for (size_t j = i + 1; j < n_particles; j++)
-			{
-				const Particle& other = particles_[j];
-
-				// Calculate total energy for the particle
-				double totalEnergy = particle.getTotalEnergy(other);
-
-				// Calculate kinetic energy for the particle
-				double kineticEnergy = particle.getKineticEnergy();
-
-				// Calculate potential energy for the particle
-				double potentialEnergy = particle.getPotentialEnergy(other);
-
-				// Sum up the energies
-				sumTotalEnergy += totalEnergy;
-				sumSquaredTotalEnergy += totalEnergy * totalEnergy;
-				sumKineticEnergy += kineticEnergy;
-				sumSquaredKineticEnergy += kineticEnergy * kineticEnergy;
-				sumPotentialEnergy += potentialEnergy;
-				sumSquaredPotentialEnergy += potentialEnergy * potentialEnergy;
-			}
-		}
-
-		// Calculate mean values
-		double meanTotalEnergy = sumTotalEnergy / n_interactions;
-		double meanKineticEnergy = sumKineticEnergy / n_interactions;
-		double meanPotentialEnergy = sumPotentialEnergy / n_interactions;
-
-		// Calculate variances
-		double varianceTotalEnergy = (sumSquaredTotalEnergy / n_interactions) - (meanTotalEnergy * meanTotalEnergy);
-		double varianceKineticEnergy = (sumSquaredKineticEnergy / n_interactions) - (meanKineticEnergy * meanKineticEnergy);
-		double variancePotentialEnergy = (sumSquaredPotentialEnergy / n_interactions) - (meanPotentialEnergy * meanPotentialEnergy);
-
-		// Calculate standard deviations
-		double stdDevTotalEnergy = std::sqrt(varianceTotalEnergy);
-		double stdDevKineticEnergy = std::sqrt(varianceKineticEnergy);
-		double stdDevPotentialEnergy = std::sqrt(variancePotentialEnergy);
-
-		EnergyData energyData;
-		energyData.TotalEnergyMean = meanTotalEnergy;
-		energyData.TotalEnergyVariance = varianceTotalEnergy;
-		energyData.TotalEnergyStdDev = stdDevTotalEnergy;
-		energyData.KineticEngyMean = meanKineticEnergy;
-		energyData.KineticEngyVariance = varianceKineticEnergy;
-		energyData.KineticEngyStdDev = stdDevKineticEnergy;
-		energyData.PotenEnergyMean = meanPotentialEnergy;
-		energyData.PotenEnergyVariance = variancePotentialEnergy;
-		energyData.PotenEnergyStdDev = stdDevPotentialEnergy;
-
-		return energyData;
-	}
 
 	/*
 	void Initialize(real T0)
@@ -233,9 +248,7 @@ public:
 					{
 						real shiftX = x * cellShifts[0];
 						real shiftY = y * cellShifts[1];
-						real shiftZ = z * cellShifts[2];
-						
-						
+						real shiftZ = z * cellShifts[2];						
 
 						// initialize position
 						Vec3 position;						

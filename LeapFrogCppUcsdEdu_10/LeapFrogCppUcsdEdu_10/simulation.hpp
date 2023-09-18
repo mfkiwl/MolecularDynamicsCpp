@@ -24,7 +24,7 @@ public:
 		system_.sigma = Constants::SIGMA;
 		system_.rCutOff = Constants::R_CUTOFF;
 
-		system_.Initialize(Constants::T0);
+		system_.initialize(Constants::T0);
 
 		FileIO::clearFile(Constants::TRAJECTORY_FILE);
 		FileIO::clearFile(Constants::ENERGY_FILE);
@@ -59,7 +59,7 @@ public:
 			//
 			//
 			//	// Adjust the temperature
-				//system_.setTemperature(Constants::DELTA_TEMP);
+				system_.setTemperature(Constants::DELTA_TEMP);
 			//}
 		}
 

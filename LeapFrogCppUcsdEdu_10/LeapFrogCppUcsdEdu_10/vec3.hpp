@@ -90,12 +90,16 @@ public:
 		);
 	}
 
-	double length() const {
+	double magnitude() const {
 		return std::sqrt(x * x + y * y + z * z);
 	}
 
+	double magnitudeSquared() const {
+		return x * x + y * y + z * z;
+	}
+
 	Vec3 normalized() const {
-		double len = length();
+		double len = magnitude();
 		return Vec3(x / len, y / len, z / len);
 	}
 
