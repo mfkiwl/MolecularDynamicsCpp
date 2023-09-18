@@ -19,40 +19,7 @@ private:
 	real temperature_;
 
 public:
-	Vec3 getAcceleration() const
-	{
-		return totalAcceleration_;
-	}
-
-	real getPotentialEnergyRepulsive() const
-	{
-		return totalPotentialEnergyRepulsive_;
-	}
-
-	real getPotentialEnergyAttractive() const
-	{
-		return totalPotentialEnergyAttractive_;
-	}
-
-	real getPotentialEnergy() const
-	{
-		return totalPotentialEnergy_;
-	}
-
-	real getKineticEnergy() const
-	{
-		return totalKineticEnergy_;
-	}
-
-	real getTotalEnergy() const
-	{
-		return totalEnergy_;
-	}
-
-	real getTemperature() const
-	{
-		return temperature_;
-	}
+	
 
 private:
 	int count_;
@@ -140,7 +107,7 @@ public:
 
 	void setTemperature(real deltaTemperature)
 	{
-		real currentTemperature = getTemperature();
+		real currentTemperature = temperature_;
 		real targetTemperature = currentTemperature + deltaTemperature;
 
 		for (auto& particle : particles_)
@@ -264,6 +231,40 @@ public:
 		Particle::MovePositionVelocityToCenterOfMass(particles_);
 
 		std::string strings = "";
+	}
+	Vec3 getAcceleration() const
+	{
+	return totalAcceleration_;
+	}
+
+	real getPotentialEnergyRepulsive() const
+	{
+	return totalPotentialEnergyRepulsive_;
+	}
+
+	real getPotentialEnergyAttractive() const
+	{
+	return totalPotentialEnergyAttractive_;
+	}
+
+	real getPotentialEnergy() const
+	{
+	return totalPotentialEnergy_;
+	}
+
+	real getKineticEnergy() const
+	{
+	return totalKineticEnergy_;
+	}
+
+	real getTotalEnergy() const
+	{
+	return totalEnergy_;
+	}
+
+	real getTemperature() const
+	{
+	return temperature_;
 	}
 	*/
 };
