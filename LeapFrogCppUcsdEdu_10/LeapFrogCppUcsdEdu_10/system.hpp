@@ -89,6 +89,53 @@ public:
 		return particles_;
 	}
 
+	void Initialize(real T0)
+	{
+		//particles_.resize(Constants::N);
+
+		// Calculate the number of particles in each dimension of the cell
+		int particlesPerDimension = std::cbrt(Constants::N);
+
+		// Calculate the spacing between particles in each dimension
+		double spacing = Constants::BOX_SIZE / particlesPerDimension;
+
+		// Generate random positions and velocities for the particles
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<double> posDist(0.0, spacing);
+		std::uniform_real_distribution<double> velDist(-Constants::MAX_VELOCITY, Constants::MAX_VELOCITY);
+
+		for (int i = 0; i < particlesPerDimension; i++)
+		{
+			for (int j = 0; j < particlesPerDimension; j++)
+			{
+				for (int k = 0; k < particlesPerDimension; k++)
+				{
+					// Calculate the position of the particle within the cell
+					double x = i * spacing + posDist(gen);
+					double y = j * spacing + posDist(gen);
+					double z = k * spacing + posDist(gen);
+
+					// Generate a random velocity for the particle
+					double vx = velDist(gen);
+					double vy = velDist(gen);
+					double vz = velDist(gen);
+
+					// Create the particle and add it to the system
+					Particle particle(i * particlesPerDimension * particlesPerDimension + j * particlesPerDimension + k,
+						Constants::ATOMIC_MASS, Constants::EPSILON, Constants::SIGMA, Constants::KB,
+						Vec3(x, y, z), Vec3(vx, vy, vz));
+
+					particles_.push_back(particle);
+				}
+			}
+		}
+
+		Particle::MovePositionVelocityToCenterOfMass(particles_);
+
+		std::string st = "";
+	}
+
 	EnergyData computeEnergy()
 	{
 		int n_particles = particles_.size();
