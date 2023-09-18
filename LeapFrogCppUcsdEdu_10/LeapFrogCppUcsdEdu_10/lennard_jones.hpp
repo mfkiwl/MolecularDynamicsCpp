@@ -66,31 +66,26 @@ public:
 		return force;
 	}
 
-	Vec3 getAcceleration(const Vec3& distance, double mass) const
+	Vec3 getForce(Vec3 distance) const
 	{
-		double rSquared = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
-		double r6 = std::pow(sigma * sigma / rSquared, 3);
-		double r12 = r6 * r6;
-
-		double magnitude = 24.0 * epsilon / mass * (2.0 * r12 - r6) / rSquared;
-
-		Vec3 acceleration(distance.x * magnitude, distance.y * magnitude, distance.z * magnitude);
-		return acceleration;
-	}
-
-	Vec3 getForce(Vec3 position) const
-	{
-		real r_mag = std::sqrt(position.x * position.x + position.y * position.y + position.z * position.z);
+		real r_mag = std::sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
 		real s_over_r = sigma / r_mag;
 		real s_over_r6 = s_over_r * s_over_r * s_over_r * s_over_r * s_over_r * s_over_r;
 		real s_over_r12 = s_over_r6 * s_over_r6;
 		real factor = 24.0 * epsilon * (2.0 * s_over_r12 - s_over_r6) / (r_mag * r_mag * r_mag);
 
 		Vec3 force;
-		force.x = factor * position.x;
-		force.y = factor * position.y;
-		force.z = factor * position.z;
+		force.x = factor * distance.x;
+		force.y = factor * distance.y;
+		force.z = factor * distance.z;
 		return force;
+	}
+
+	Vec3 getAcceleration(const Vec3& distance, double mass) const
+	{
+		Vec3 force = getForce(distance);
+		// use Lennard-Jones force law
+		return force / mass;
 	}
 
 	real getKineticEnergy(real mass, const Vec3& velocity) const
@@ -136,8 +131,6 @@ public:
 		double scalingFactor = std::sqrt(targetTemperature / currentTemperature);
 		velocity *= scalingFactor;
 	}
-
-	
 };
 #endif // !LJ_HPP
 

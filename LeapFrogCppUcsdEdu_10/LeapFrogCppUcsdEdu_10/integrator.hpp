@@ -14,12 +14,14 @@ public:
 		for (int i = 0; i < n_particles; i++)
 		{
 			Particle& particle = particles_[i];
+			
 			Vec3 acceleration;
 			for (int j = 0; j < n_particles; j++)
 			{
 				if (i != j)
 				{
-					acceleration += particle.getAcceleration(particles_[j]);
+					Particle& other = particles_[j];
+					acceleration += particle.getAcceleration(other);
 				}
 			}
 			particle.velocity += 0.5 * dt * acceleration; // half velocity step
@@ -36,7 +38,8 @@ public:
 			{
 				if (i != j)
 				{
-					acceleration += particle.getAcceleration(particles_[j]);
+					Particle& other = particles_[j];
+					acceleration += particle.getAcceleration(other);
 				}
 			}
 			particle.velocity += 0.5 * dt * acceleration; // complete velocity step
