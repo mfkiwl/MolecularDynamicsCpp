@@ -9,6 +9,7 @@ TEST(TestCaseName, TestLennardTemperature)
 	real tenpe = lj.getTemperature(Constants::ATOMIC_MASS, velocity);
 
 	char ch = '\n';
+
 }
 
 TEST(TestCaseName, TestLennardJonesFormula) 

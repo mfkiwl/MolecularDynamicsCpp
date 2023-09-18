@@ -41,7 +41,7 @@ public:
 
 	real getKineticEnergy() const
 	{
-		return totalPotentialEnergy_;
+		return totalKineticEnergy_;
 	}
 
 	real getTotalEnergy() const
