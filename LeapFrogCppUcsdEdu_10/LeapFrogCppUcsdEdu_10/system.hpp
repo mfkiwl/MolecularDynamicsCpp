@@ -103,6 +103,8 @@ public:
 		energyData.Pot_engy_attractive = totalPotentialEnergyAttractive_;
 		energyData.Pot_engy_repulsive = totalPotentialEnergyRepulsive_;
 		energyData.TotalEnergy = totalEnergy_;
+
+		return energyData;
 	}
 
 	void setTemperature(real deltaTemperature)
