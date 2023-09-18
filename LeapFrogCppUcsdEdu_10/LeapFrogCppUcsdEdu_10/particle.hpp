@@ -5,7 +5,7 @@
 #include "vec3.hpp"
 #include "lennard_jones.hpp"
 
-class Particle 
+class Particle
 {
 private:
 	LennardJones lj_;
@@ -21,17 +21,35 @@ public:
 	{
 		number = 0;
 		mass = 0;
-		position = Vec3(0,0,0);
+		position = Vec3(0, 0, 0);
 		velocity = Vec3(0, 0, 0);
-		temperature=0;
+		temperature = 0;
 	}
 
 	Particle(int number, real mass, real epsilon, real sigma, real kB, const Vec3& position, const Vec3& velocity)
 		: number(number), lj_(epsilon, sigma, kB), mass(mass), position(position), velocity(velocity) {}
 
-	Vec3 getForce()
+	Particle(const Particle& other)
+		: lj_(other.lj_), number(other.number), mass(other.mass), position(other.position), velocity(other.velocity), temperature(other.temperature) {}
+
+	Particle& operator=(const Particle& other)
 	{
-		return lj_.getForce(position);
+		if (this != &other)
+		{
+			lj_ = other.lj_;
+			number = other.number;
+			mass = other.mass;
+			position = other.position;
+			velocity = other.velocity;
+			temperature = other.temperature;
+		}
+		return *this;
+	}
+
+	Vec3 getForce(const Particle& other)
+	{
+		Vec3 distance = position - other.position;
+		return lj_.getForce(distance);
 	}
 
 	real getKineticEnergy() const
@@ -69,65 +87,13 @@ public:
 		real kineticEnergy = getKineticEnergy();
 		return potentialEnergy + kineticEnergy;
 	}
-	
+
 	bool isWithinCutOff(const Particle& other, real rCutOff) const
 	{
 		Particle temp = *this;
 		Vec3 distance = temp.position - other.position;
 		double r = distance.magnitude();
 		return r < rCutOff;
-	}
-
-	Particle& operator+=(const Particle& other) {
-		mass += other.mass;
-		position += other.position;
-		velocity += other.velocity;
-		return *this;
-	}
-
-	Particle& operator-=(const Particle& other) {
-		mass -= other.mass;
-		position -= other.position;
-		velocity -= other.velocity;
-		return *this;
-	}
-
-	Particle operator+(const Particle& other) const {
-		Particle result(*this);
-		result += other;
-		return result;
-	}
-
-	Particle operator-(const Particle& other) const {
-		Particle result(*this);
-		result -= other;
-		return result;
-	}
-
-	Particle& operator*=(real scalar) {
-		mass *= scalar;
-		position *= scalar;
-		velocity *= scalar;
-		return *this;
-	}
-
-	Particle operator*(real scalar) const {
-		Particle result(*this);
-		result *= scalar;
-		return result;
-	}
-
-	Particle& operator/=(real scalar) {
-		mass /= scalar;
-		position /= scalar;
-		velocity /= scalar;
-		return *this;
-	}
-
-	Particle operator/(real scalar) const {
-		Particle result(*this);
-		result /= scalar;
-		return result;
 	}
 
 	static void MovePositionVelocityToCenterOfMass(std::vector<Particle>& particles_)
@@ -156,4 +122,5 @@ public:
 		}
 	}
 };
+
 #endif // !PARTICLE_HPP

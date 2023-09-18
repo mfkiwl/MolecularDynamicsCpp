@@ -25,7 +25,7 @@ public:
 
 	real getPotential(const Vec3& distance) const
 	{
-		real r_mag = std::sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
+		real r_mag = distance.magnitude();
 		real s_over_r = sigma / r_mag;
 		real s_over_r6 = pow(s_over_r, 6);
 		return epsilon * (s_over_r6 * s_over_r6 - 2.0 * s_over_r6);

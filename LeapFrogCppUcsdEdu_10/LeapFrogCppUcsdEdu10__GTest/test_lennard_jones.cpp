@@ -1,15 +1,24 @@
 #include "pch.h"
 #include "header.h"
 
-LennardJones lj(Constants::EPSILON, Constants::SIGMA, Constants::KB);
 
-TEST(TestCaseName, TestLennardTemperature)
+Particle particle(1, Constants::ATOMIC_MASS,
+	Constants::EPSILON, Constants::SIGMA,
+	Constants::KB, Vec3(1, 1, 1),
+	Vec3(1, 1, 1));
+Particle other(1, Constants::ATOMIC_MASS,
+	Constants::EPSILON, Constants::SIGMA,
+	Constants::KB, Vec3(0, 0, 0),
+	Vec3(1, 1, 1));
+
+TEST(TestCaseName2, TestParticleAccel)
 {
-	Vec3 velocity(1.0, 1.0, 1.0);
-	real tenpe = lj.getTemperature(Constants::ATOMIC_MASS, velocity);
+	Vec3 accel = particle.getAcceleration(other);
 
 	char ch = '\n';
 }
+
+LennardJones lj(Constants::EPSILON, Constants::SIGMA, Constants::KB);
 
 TEST(TestCaseName, TestLennardJonesFormula) 
 {
