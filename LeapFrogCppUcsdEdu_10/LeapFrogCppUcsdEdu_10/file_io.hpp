@@ -7,7 +7,7 @@
 #include <iomanip>
 
 #include "common.hpp"
-#include "energy.hpp" 
+#include "energy_data.hpp" 
 #include "particle.hpp"
 
 class FileIO

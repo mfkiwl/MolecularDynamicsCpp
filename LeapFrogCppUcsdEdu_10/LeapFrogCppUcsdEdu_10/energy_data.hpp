@@ -15,11 +15,17 @@ public:
 	real TotalEnergyMean;
 	real TotalEnergyVariance;
 	real TotalEnergyStdDev;
+	real KineticEngyMean;
+	real KineticEngyVariance;
+	real KineticEngyStdDev;
+	real PotenEnergyMean;
+	real PotenEnergyVariance;
+	real PotenEnergyStdDev;
 
 	EnergyData()
 	{
-		step_no=0;
-		TotalEnergy=0;
+		step_no = 0;
+		TotalEnergy = 0;
 		PotenEnergy = 0;
 		PotEngyRepulsive = 0;
 		PotEngyAttractive = 0;
@@ -28,5 +34,11 @@ public:
 		TotalEnergyMean = 0;
 		TotalEnergyVariance = 0;
 		TotalEnergyStdDev = 0;
+		KineticEngyMean = 0;
+		KineticEngyVariance = 0;
+		KineticEngyStdDev = 0;
+		PotenEnergyMean = 0;
+		PotenEnergyVariance = 0;
+		PotenEnergyStdDev = 0;
 	}
 };
