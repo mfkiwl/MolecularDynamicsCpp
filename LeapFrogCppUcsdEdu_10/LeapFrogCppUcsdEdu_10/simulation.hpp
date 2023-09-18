@@ -22,6 +22,8 @@ public:
 		system_.kB = Constants::KB;
 		system_.mass = Constants::ATOMIC_MASS;
 		system_.sigma = Constants::SIGMA;
+		system_.rCutOff = Constants::R_CUTOFF;
+
 		system_.Initialize(Constants::T0);
 
 		FileIO::clearFile(Constants::TRAJECTORY_FILE);

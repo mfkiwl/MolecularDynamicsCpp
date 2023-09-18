@@ -25,6 +25,8 @@ public:
 	static const int N;  // number of particles
 	static const real BOX_SIZE; // size of the simulation box
 	static const real MAX_VELOCITY;   // maximum initial velocity
+	static const real R_CUTOFF;
+
 	static const real DT;   // time step
 	static const int N_STEPS;   // number of time steps
 	static const real T0; // initial temperature in KB
@@ -48,9 +50,12 @@ const int Constants::SAVE_TRAJECTORY = 2;
 const int Constants::SAVE_ENERGY = 2;
 const int Constants::TEMP_ADJUST_STEP = 2;
 
+
 const real Constants::BOX_SIZE = 6.0; // size of the simulation box
 const real Constants::MAX_VELOCITY = 0.1;   // maximum initial velocity
 const real Constants::DT = 0.01;   // time step
+const real Constants::R_CUTOFF = 0.9;
+
 
 const real Constants::T0 = 70.0 * KB; // initial temperature in KB
 const real Constants::TEMP_TARGET = 300.0 * KB; // target temperature in KB

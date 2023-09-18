@@ -80,6 +80,16 @@ public:
 		lj_.setTemperature(targetTemperature, mass, velocity);
 	}
 
+	bool isWithinCutOff(const Particle& other, real rCutOff) const
+	{
+		Particle temp = *this;
+		Vec3 distance = temp.position - other.position;
+		double r = std::sqrt(	  distance.x * distance.x 
+								+ distance.y * distance.y 
+								+ distance.z * distance.z);
+		return r > rCutOff;
+	}
+
 	Particle& operator+=(const Particle& other) {
 		mass += other.mass;
 		position += other.position;

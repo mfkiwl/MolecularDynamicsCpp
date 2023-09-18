@@ -37,6 +37,7 @@ public:
 	real epsilon;
 	real mass;
 	real kB;
+	real rCutOff;
 
 	System()
 	{
@@ -55,10 +56,11 @@ public:
 		epsilon = 0;
 		mass = 0;
 		kB = 0;
+		rCutOff = 0;
 	}
 
-	System(real sigma, real epsilon, real mass, real kB, real dimension): 
-		sigma(sigma), epsilon(epsilon), mass(mass), kB(kB), dimension(dimension)
+	System(real sigma, real epsilon, real mass, real kB, real dimension, real rCutOff): 
+		sigma(sigma), epsilon(epsilon), mass(mass), kB(kB), dimension(dimension), rCutOff(rCutOff)
 	{
 		totalAcceleration_.x = 0; totalAcceleration_.y = 0; totalAcceleration_.z = 0;
 		totalPotentialEnergyRepulsive_ = 0.0;
@@ -75,34 +77,48 @@ public:
 	{
 		int n_particles = particles_.size();
 
-		for (size_t i = 0; i < n_particles ; i++)
+		double sumTotalEnergy = 0.0;
+		double sumSquaredTotalEnergy = 0.0;
+
+		for (size_t i = 0; i < n_particles; i++)
 		{
 			Vec3 particleAcceleration(0.0, 0.0, 0.0);
 
 			const Particle& particle = particles_[i];
 
-			for (size_t j = i + 1; j < n_particles ; j++)
+			for (size_t j = i + 1; j < n_particles; j++)
 			{
 				const Particle& other = particles_[j];
 
-				particleAcceleration += particle.getAcceleration(other);
-				totalPotentialEnergyRepulsive_ += particle.getPotentialEnergyRepulsive(other);
-				totalPotentialEnergyAttractive_ += particle.getPotentialEnergyAttractive(other);
-				totalPotentialEnergy_ = particle.getPotentialEnergy(other);
+				if (particle.isWithinCutOff(other, rCutOff))
+				{
+					particleAcceleration += particle.getAcceleration(other);
+					totalPotentialEnergyRepulsive_ += particle.getPotentialEnergyRepulsive(other);
+					totalPotentialEnergyAttractive_ += particle.getPotentialEnergyAttractive(other);
+					totalPotentialEnergy_ = particle.getPotentialEnergy(other);
+					totalKineticEnergy_ += particle.getKineticEnergy();
+				}
 			}
 
-			totalKineticEnergy_ += particle.getKineticEnergy();
+			totalEnergy_ = totalPotentialEnergy_ + totalKineticEnergy_;
+
+			sumTotalEnergy += totalEnergy_;
+			sumSquaredTotalEnergy += totalEnergy_ * totalEnergy_;
 		}
 
-		totalEnergy_ = totalPotentialEnergy_ + totalKineticEnergy_;
-		currentTemperature_ = (2.0 * totalKineticEnergy_) / (3.0 * kB * n_particles);
+		double mean = sumTotalEnergy / n_particles;
+		double variance = (sumSquaredTotalEnergy / n_particles) - (mean * mean);
+		double standardDeviation = std::sqrt(variance);
 
 		EnergyData energyData;
-		energyData.Kinetic_engy = 0.5 * totalKineticEnergy_;
-		energyData.Poten_energy = 0.5 * totalPotentialEnergy_;
-		energyData.Pot_engy_attractive = 0.5 * totalPotentialEnergyAttractive_;
-		energyData.Pot_engy_repulsive = 0.5 * totalPotentialEnergyRepulsive_;
+		energyData.KineticEngy = 0.5 * totalKineticEnergy_;
+		energyData.PotenEnergy = 0.5 * totalPotentialEnergy_;
+		energyData.PotEngyAttractive = 0.5 * totalPotentialEnergyAttractive_;
+		energyData.PotEngyRepulsive = 0.5 * totalPotentialEnergyRepulsive_;
 		energyData.TotalEnergy = 0.5 * totalEnergy_;
+		energyData.TotalEnergyMean = mean;
+		energyData.TotalEnergyVariance = variance;
+		energyData.TotalEnergyStdDev = standardDeviation;
 
 		return energyData;
 	}

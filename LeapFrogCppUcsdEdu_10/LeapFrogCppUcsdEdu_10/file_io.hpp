@@ -63,11 +63,11 @@ public:
 		{
 			// Write the row to the file
 			file << std::fixed << std::setprecision(2) << energy.TotalEnergy << ","
-				<< std::fixed << std::setprecision(2) << energy.Poten_energy << ","
-				<< std::fixed << std::setprecision(2) << energy.Pot_engy_repulsive << ","
-				<< std::fixed << std::setprecision(2) << energy.Pot_engy_attractive << ","
+				<< std::fixed << std::setprecision(2) << energy.PotenEnergy << ","
+				<< std::fixed << std::setprecision(2) << energy.PotEngyRepulsive << ","
+				<< std::fixed << std::setprecision(2) << energy.PotEngyAttractive << ","
 				<< std::fixed << std::setprecision(2) << energy.Pot_engy_balloon << ","
-				<< std::fixed << std::setprecision(2) << energy.Kinetic_engy << "\n";
+				<< std::fixed << std::setprecision(2) << energy.KineticEngy << "\n";
 
 			file.close();
 			std::cout << "Energy saved to file: " << filename.c_str() << std::endl;
