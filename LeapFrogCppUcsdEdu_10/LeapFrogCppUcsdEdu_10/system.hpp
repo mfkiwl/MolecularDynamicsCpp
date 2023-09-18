@@ -98,11 +98,11 @@ public:
 		temperature_ = (2.0 * totalKineticEnergy_) / (3.0 * kB * n_particles);
 
 		EnergyData energyData;
-		energyData.Kinetic_engy = totalKineticEnergy_;
-		energyData.Poten_energy = totalPotentialEnergy_;
-		energyData.Pot_engy_attractive = totalPotentialEnergyAttractive_;
-		energyData.Pot_engy_repulsive = totalPotentialEnergyRepulsive_;
-		energyData.TotalEnergy = totalEnergy_;
+		energyData.Kinetic_engy = 0.5 * totalKineticEnergy_;
+		energyData.Poten_energy = 0.5 * totalPotentialEnergy_;
+		energyData.Pot_engy_attractive = 0.5 * totalPotentialEnergyAttractive_;
+		energyData.Pot_engy_repulsive = 0.5 * totalPotentialEnergyRepulsive_;
+		energyData.TotalEnergy = 0.5 * totalEnergy_;
 
 		return energyData;
 	}
