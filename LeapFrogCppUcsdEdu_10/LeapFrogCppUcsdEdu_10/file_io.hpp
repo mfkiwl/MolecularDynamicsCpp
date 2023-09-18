@@ -55,19 +55,42 @@ public:
 		}
 	}
 
-	static void writeEnergyToFile(const std::string& filename, const EnergyData& energy)
+	static void writeEnergyToFile(const std::string& filename, const EnergyData& data)
 	{
 		std::ofstream file(filename, std::ios_base::app); // Open the file in append mode
 
 		if (file.is_open())
 		{
 			// Write the row to the file
-			file << std::fixed << std::setprecision(2) << energy.TotalEnergy << ","
-				<< std::fixed << std::setprecision(2) << energy.PotenEnergy << ","
-				<< std::fixed << std::setprecision(2) << energy.PotEngyRepulsive << ","
-				<< std::fixed << std::setprecision(2) << energy.PotEngyAttractive << ","
-				<< std::fixed << std::setprecision(2) << energy.Pot_engy_balloon << ","
-				<< std::fixed << std::setprecision(2) << energy.KineticEngy << "\n";
+			file << std::fixed << std::setprecision(2) << data.TotalEnergy << ","
+				<< std::fixed << std::setprecision(2) << data.TotalEnengyStats.getMean() << ","
+				<< std::fixed << std::setprecision(2) << data.TotalEnengyStats.getVariance() << ","
+				<< std::fixed << std::setprecision(2) << data.TotalEnengyStats.getStdDev() << ","
+
+				 << std::fixed << std::setprecision(2) << data.PotenEnergy << ","
+				<< std::fixed << std::setprecision(2) << data.PotenEnergyStats.getMean() << ","
+				<< std::fixed << std::setprecision(2) << data.PotenEnergyStats.getVariance() << ","
+				<< std::fixed << std::setprecision(2) << data.PotenEnergyStats.getStdDev() << ","
+
+				 << std::fixed << std::setprecision(2) << data.PotEngyRepulsive << ","
+				<< std::fixed << std::setprecision(2) << data.PotEngyRepulsiveStats.getMean() << ","
+				<< std::fixed << std::setprecision(2) << data.PotEngyRepulsiveStats.getVariance() << ","
+				<< std::fixed << std::setprecision(2) << data.PotEngyRepulsiveStats.getStdDev() << ","
+
+				 << std::fixed << std::setprecision(2) << data.PotEngyAttractive << ","
+				<< std::fixed << std::setprecision(2) << data.PotEngyAttractiveStats.getMean() << ","
+				<< std::fixed << std::setprecision(2) << data.PotEngyAttractiveStats.getVariance() << ","
+				<< std::fixed << std::setprecision(2) << data.PotEngyAttractiveStats.getStdDev() << ","
+
+				 
+				 << std::fixed << std::setprecision(2) << data.KineticEngy << ","
+				<< std::fixed << std::setprecision(2) << data.KineticEngyStats.getMean() << ","
+				<< std::fixed << std::setprecision(2) << data.KineticEngyStats.getVariance() << ","
+				<< std::fixed << std::setprecision(2) << data.KineticEngyStats.getStdDev() << ","
+
+				<< std::fixed << std::setprecision(2) << data.PotEngyBalloon << ","
+				
+				 << "\n";
 
 			file.close();
 			std::cout << "Energy saved to file: " << filename.c_str() << std::endl;

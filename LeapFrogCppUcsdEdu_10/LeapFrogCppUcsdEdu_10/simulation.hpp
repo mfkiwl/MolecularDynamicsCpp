@@ -13,6 +13,7 @@ class Simulation
 {
 private:
 	System system_;
+	EnergyData energyData_;
 
 public:
 	Simulation()
@@ -39,28 +40,15 @@ public:
 
 			Integrator::Lepfrog(system_.getParticles(), Constants::DT);
 
-			// Save the trajectory every 100 steps
-			//if (step % Constants::SAVE_TRAJECTORY == 0)
-			//{
-				FileIO::writeTrajectoryToFile(Constants::TRAJECTORY_FILE, system_.getParticles());
-			//}
+			FileIO::writeTrajectoryToFile(Constants::TRAJECTORY_FILE, system_.getParticles());
+			
+			EnergyData data = system_.computeEnergy(step);
 
-			//if (step % Constants::SAVE_ENERGY == 0)
-			{
-				EnergyData energy = system_.computeEnergy();
+			energyData_.update(data);
 
-				FileIO::writeEnergyToFile(Constants::ENERGY_FILE, energy);
-			}
+			FileIO::writeEnergyToFile(Constants::ENERGY_FILE, energyData_);
 
-			// Adjust the temperature every `X` steps
-			//if (step % Constants::TEMP_ADJUST_STEP == 0)
-			//{
-			//	// Calculate the current temperature
-			//
-			//
-			//	// Adjust the temperature
-				system_.setTemperature(Constants::DELTA_TEMP);
-			//}
+			////system_.scaleTemperature(Constants::DELTA_TEMP);
 		}
 
 		std::cout << "\n\n\nSimulation is complete!" << std::endl;

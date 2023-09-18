@@ -73,49 +73,9 @@ public:
 		particleCount_ = 0;
 	}
 
-	double getTemperature()
+	EnergyData computeEnergy(int step_no)
 	{
 		int n_particles = particles_.size();
-		real currentTemperature = 0.0;
-		for (int i = 0; i < n_particles; i++)
-		{
-			real lenSq = particles_[i].velocity.magnitudeSquared();
-
-			currentTemperature += 0.5 * mass * lenSq / n_particles;
-		}
-		return currentTemperature;
-	}
-
-	void setTemperature(real targetTemperature)
-	{
-		int n_particles = particles_.size();
-
-		real currentTemperature = getTemperature();
-
-		real scalingFactor = std::sqrt(targetTemperature / currentTemperature);
-
-		for (int i = 0; i < n_particles; i++)
-		{
-			particles_[i].velocity *= scalingFactor;
-		}
-	}
-
-	std::vector<Particle>& getParticles()
-	{
-		return particles_;
-	}
-
-	EnergyData computeEnergy()
-	{
-		int n_particles = particles_.size();
-		int n_interactions = (n_particles * (n_particles - 1)) / 2;
-
-		double sumTotalEnergy = 0.0;
-		double sumSquaredTotalEnergy = 0.0;
-		double sumKineticEnergy = 0.0;
-		double sumSquaredKineticEnergy = 0.0;
-		double sumPotentialEnergy = 0.0;
-		double sumSquaredPotentialEnergy = 0.0;
 
 		for (size_t i = 0; i < n_particles; i++)
 		{
@@ -127,52 +87,32 @@ public:
 			{
 				const Particle& other = particles_[j];			
 
-				// Calculate kinetic energy for the particle
-				double kineticEnergy = particle.getKineticEnergy();
+				if (particle.isWithinCutOff(other, rCutOff))
+				{
+					double kineticEnergy = particle.getKineticEnergy();
+					double potEngyAttrac = particle.getPotentialEnergyAttractive(other);
+					double potEngyRepuls = particle.getPotentialEnergyRepulsive(other);
+					double potentlEnergy = particle.getPotentialEnergy(other);
+					double totalEnergy = particle.getTotalEnergy(other);
 
-				// Calculate potential energy for the particle
-				double potentialEnergy = particle.getPotentialEnergy(other);
-
-				// Calculate total energy for the particle
-				double totalEnergy = particle.getTotalEnergy(other);
-
-				// Sum up the energies
-				sumTotalEnergy += totalEnergy;
-				sumSquaredTotalEnergy += totalEnergy * totalEnergy;
-				sumKineticEnergy += kineticEnergy;
-				sumSquaredKineticEnergy += kineticEnergy * kineticEnergy;
-				sumPotentialEnergy += potentialEnergy;
-				sumSquaredPotentialEnergy += potentialEnergy * potentialEnergy;
+					totalKineticEnergy_ += kineticEnergy;
+					totalPotentialEnergyAttractive_ += potEngyAttrac;
+					totalPotentialEnergyRepulsive_ += potEngyRepuls;
+					totalPotentialEnergy_ += potentlEnergy;
+					totalEnergy_ += totalEnergy;
+				}
 			}
 		}
 
-		// Calculate mean values
-		double meanTotalEnergy = sumTotalEnergy / n_interactions;
-		double meanKineticEnergy = sumKineticEnergy / n_interactions;
-		double meanPotentialEnergy = sumPotentialEnergy / n_interactions;
+		EnergyData data;
+		data.step_no = step_no;
+		data.KineticEngy = totalKineticEnergy_ * 0.5;
+		data.PotEngyAttractive = totalPotentialEnergyAttractive_ * 0.5;
+		data.PotEngyRepulsive = totalPotentialEnergyRepulsive_ * 0.5;
+		data.PotenEnergy = totalPotentialEnergy_ * 0.5;
+		data.PotEngyBalloon = 0 * 0.5;
 
-		// Calculate variances
-		double varianceTotalEnergy = (sumSquaredTotalEnergy / n_interactions) - (meanTotalEnergy * meanTotalEnergy);
-		double varianceKineticEnergy = (sumSquaredKineticEnergy / n_interactions) - (meanKineticEnergy * meanKineticEnergy);
-		double variancePotentialEnergy = (sumSquaredPotentialEnergy / n_interactions) - (meanPotentialEnergy * meanPotentialEnergy);
-
-		// Calculate standard deviations
-		double stdDevTotalEnergy = std::sqrt(varianceTotalEnergy);
-		double stdDevKineticEnergy = std::sqrt(varianceKineticEnergy);
-		double stdDevPotentialEnergy = std::sqrt(variancePotentialEnergy);
-
-		EnergyData energyData;
-		energyData.TotalEnergyMean = meanTotalEnergy;
-		energyData.TotalEnergyVariance = varianceTotalEnergy;
-		energyData.TotalEnergyStdDev = stdDevTotalEnergy;
-		energyData.KineticEngyMean = meanKineticEnergy;
-		energyData.KineticEngyVariance = varianceKineticEnergy;
-		energyData.KineticEngyStdDev = stdDevKineticEnergy;
-		energyData.PotenEnergyMean = meanPotentialEnergy;
-		energyData.PotenEnergyVariance = variancePotentialEnergy;
-		energyData.PotenEnergyStdDev = stdDevPotentialEnergy;
-
-		return energyData;
+		return data;
 	}
 
 
@@ -221,6 +161,37 @@ public:
 		std::string st = "";
 	}
 
+	double getTemperature()
+	{
+		int n_particles = particles_.size();
+		real currentTemperature = 0.0;
+		for (int i = 0; i < n_particles; i++)
+		{
+			real lenSq = particles_[i].velocity.magnitudeSquared();
+
+			currentTemperature += 0.5 * mass * lenSq / n_particles;
+		}
+		return currentTemperature;
+	}
+
+	void scaleTemperature(real targetTemperature)
+	{
+		int n_particles = particles_.size();
+
+		real currentTemperature = getTemperature();
+
+		real scalingFactor = std::sqrt(targetTemperature / currentTemperature);
+
+		for (int i = 0; i < n_particles; i++)
+		{
+			particles_[i].velocity *= scalingFactor;
+		}
+	}
+
+	std::vector<Particle>& getParticles()
+	{
+		return particles_;
+	}
 
 	/*
 	void Initialize(real T0)

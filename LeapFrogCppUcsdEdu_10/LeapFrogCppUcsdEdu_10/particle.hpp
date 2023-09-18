@@ -75,7 +75,7 @@ public:
 		Particle temp = *this;
 		Vec3 distance = temp.position - other.position;
 		double r = distance.magnitude();
-		return r > rCutOff;
+		return r < rCutOff;
 	}
 
 	Particle& operator+=(const Particle& other) {

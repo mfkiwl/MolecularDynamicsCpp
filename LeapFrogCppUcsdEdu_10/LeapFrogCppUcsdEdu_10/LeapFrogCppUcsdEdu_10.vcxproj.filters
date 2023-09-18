@@ -39,6 +39,9 @@
     <ClInclude Include="energy_data.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IncrementalStats.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="vec3.hpp">

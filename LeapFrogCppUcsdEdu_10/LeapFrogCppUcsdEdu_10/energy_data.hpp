@@ -1,44 +1,76 @@
 #pragma once
 
 #include "common.hpp"
+#include "IncrementalStats.hpp"
 
 class EnergyData
 {
 public:
+	int count;
 	int step_no;
 	real TotalEnergy;
 	real PotenEnergy;
 	real PotEngyRepulsive;
 	real PotEngyAttractive;
-	real Pot_engy_balloon;
+	real PotEngyBalloon;
 	real KineticEngy;
-	real TotalEnergyMean;
-	real TotalEnergyVariance;
-	real TotalEnergyStdDev;
-	real KineticEngyMean;
-	real KineticEngyVariance;
-	real KineticEngyStdDev;
-	real PotenEnergyMean;
-	real PotenEnergyVariance;
-	real PotenEnergyStdDev;
+
+	IncrementalStats TotalEnengyStats;
+	IncrementalStats PotenEnergyStats;
+	IncrementalStats PotEngyRepulsiveStats;
+	IncrementalStats PotEngyAttractiveStats;
+	IncrementalStats KineticEngyStats;
 
 	EnergyData()
 	{
+		count = 0;
 		step_no = 0;
 		TotalEnergy = 0;
 		PotenEnergy = 0;
 		PotEngyRepulsive = 0;
 		PotEngyAttractive = 0;
-		Pot_engy_balloon = 0;
+		PotEngyBalloon = 0;
 		KineticEngy = 0;
-		TotalEnergyMean = 0;
-		TotalEnergyVariance = 0;
-		TotalEnergyStdDev = 0;
-		KineticEngyMean = 0;
-		KineticEngyVariance = 0;
-		KineticEngyStdDev = 0;
-		PotenEnergyMean = 0;
-		PotenEnergyVariance = 0;
-		PotenEnergyStdDev = 0;
+	}
+
+	void update(const EnergyData& other)
+	{
+		*this = other;
+		TotalEnengyStats.update(other.TotalEnergy);
+		PotenEnergyStats.update(other.PotenEnergy);
+		PotEngyRepulsiveStats.update(other.PotEngyRepulsive);
+		PotEngyAttractiveStats.update(other.PotEngyAttractive);
+		KineticEngyStats.update(other.KineticEngy);
+	}
+
+	// Copy constructor
+	EnergyData(const EnergyData& other)
+	{
+		step_no = other.step_no;
+		count = other.count;
+		TotalEnergy = other.TotalEnergy;
+		PotenEnergy = other.PotenEnergy;
+		PotEngyRepulsive = other.PotEngyRepulsive;
+		PotEngyAttractive = other.PotEngyAttractive;
+		PotEngyBalloon = other.PotEngyBalloon;
+		KineticEngy = other.KineticEngy;
+	}
+
+	// Copy assignment operator
+	EnergyData& operator=(const EnergyData& other)
+	{
+		if (this != &other)
+		{
+			step_no = other.step_no;
+			count = other.count;
+			TotalEnergy = other.TotalEnergy;
+			PotenEnergy = other.PotenEnergy;
+			PotEngyRepulsive = other.PotEngyRepulsive;
+			PotEngyAttractive = other.PotEngyAttractive;
+			PotEngyBalloon = other.PotEngyBalloon;
+			KineticEngy = other.KineticEngy;
+		}
+
+		return *this;
 	}
 };

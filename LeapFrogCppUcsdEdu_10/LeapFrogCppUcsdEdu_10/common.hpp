@@ -44,11 +44,11 @@ const real Constants::EPSILON = 1.19;
 
 const real Constants::ATOMIC_MASS = 39.948;
 
-const int Constants::N = 9;  // number of particles
-const int Constants::N_STEPS = 100;   // number of time steps
-const int Constants::SAVE_TRAJECTORY = 2;
-const int Constants::SAVE_ENERGY = 2;
-const int Constants::TEMP_ADJUST_STEP = 2;
+const int Constants::N = 3;  // number of particles
+const int Constants::N_STEPS = 10;   // number of time steps
+const int Constants::SAVE_TRAJECTORY = 1;
+const int Constants::SAVE_ENERGY = 1;
+const int Constants::TEMP_ADJUST_STEP = 1;
 
 
 const real Constants::BOX_SIZE = 6.0; // size of the simulation box
