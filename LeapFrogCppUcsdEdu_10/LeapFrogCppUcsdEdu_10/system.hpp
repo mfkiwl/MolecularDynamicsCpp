@@ -92,6 +92,7 @@ public:
 	EnergyData computeEnergy()
 	{
 		int n_particles = particles_.size();
+		int n_interactions = (n_particles * (n_particles - 1)) / 2;
 
 		double sumTotalEnergy = 0.0;
 		double sumSquaredTotalEnergy = 0.0;
@@ -130,14 +131,14 @@ public:
 		}
 
 		// Calculate mean values
-		double meanTotalEnergy = sumTotalEnergy / n_particles;
-		double meanKineticEnergy = sumKineticEnergy / n_particles;
-		double meanPotentialEnergy = sumPotentialEnergy / n_particles;
+		double meanTotalEnergy = sumTotalEnergy / n_interactions;
+		double meanKineticEnergy = sumKineticEnergy / n_interactions;
+		double meanPotentialEnergy = sumPotentialEnergy / n_interactions;
 
 		// Calculate variances
-		double varianceTotalEnergy = (sumSquaredTotalEnergy / n_particles) - (meanTotalEnergy * meanTotalEnergy);
-		double varianceKineticEnergy = (sumSquaredKineticEnergy / n_particles) - (meanKineticEnergy * meanKineticEnergy);
-		double variancePotentialEnergy = (sumSquaredPotentialEnergy / n_particles) - (meanPotentialEnergy * meanPotentialEnergy);
+		double varianceTotalEnergy = (sumSquaredTotalEnergy / n_interactions) - (meanTotalEnergy * meanTotalEnergy);
+		double varianceKineticEnergy = (sumSquaredKineticEnergy / n_interactions) - (meanKineticEnergy * meanKineticEnergy);
+		double variancePotentialEnergy = (sumSquaredPotentialEnergy / n_interactions) - (meanPotentialEnergy * meanPotentialEnergy);
 
 		// Calculate standard deviations
 		double stdDevTotalEnergy = std::sqrt(varianceTotalEnergy);
