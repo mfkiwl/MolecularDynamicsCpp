@@ -104,7 +104,7 @@ public:
 		count_ = 0;
 	}
 
-	void computeEnergy()
+	EnergyData computeEnergy()
 	{
 		int n_particles = particles_.size();
 
@@ -129,6 +129,13 @@ public:
 
 		totalEnergy_ = totalPotentialEnergy_ + totalKineticEnergy_;
 		temperature_ = (2.0 * totalKineticEnergy_) / (3.0 * kB * n_particles);
+
+		EnergyData energyData;
+		energyData.Kinetic_engy = totalKineticEnergy_;
+		energyData.Poten_energy = totalPotentialEnergy_;
+		energyData.Pot_engy_attractive = totalPotentialEnergyAttractive_;
+		energyData.Pot_engy_repulsive = totalPotentialEnergyRepulsive_;
+		energyData.TotalEnergy = totalEnergy_;
 	}
 
 	void setTemperature(real deltaTemperature)

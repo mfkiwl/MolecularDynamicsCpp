@@ -45,17 +45,7 @@ public:
 
 			//if (step % Constants::SAVE_ENERGY == 0)
 			{
-				system_.computeEnergy();
-
-				EnergyData energy;
-				energy.step_no = step;
-				energy.Kinetic_engy = system_.getKineticEnergy();
-				energy.Poten_energy = system_.getPotentialEnergy();
-				energy.TotalEnergy = system_.getTotalEnergy();
-				energy.Pot_engy_attractive = system_.getPotentialEnergyAttractive();
-				energy.Pot_engy_repulsive = system_.getPotentialEnergyRepulsive();
-				energy.step_no = step;
-				energy.Pot_engy_balloon = 0;
+				EnergyData energy = system_.computeEnergy();
 
 				FileIO::writeEnergyToFile(Constants::ENERGY_FILE, energy);
 			}
