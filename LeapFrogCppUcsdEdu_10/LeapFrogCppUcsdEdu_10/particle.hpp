@@ -93,33 +93,7 @@ public:
 		Particle temp = *this;
 		Vec3 distance = temp.position - other.position;
 		double r = distance.magnitude();
-		return r < rCutOff;
-	}
-
-	static void MovePositionVelocityToCenterOfMass(std::vector<Particle>& particles_)
-	{
-		Vec3 centerOfMassVelocity;
-		Vec3 centerOfMass;
-		real totalMass = 0.0;
-
-		// Calculate the total mass and the weighted sum of positions
-		for (const auto& particle : particles_)
-		{
-			centerOfMass += particle.position * particle.mass;
-			centerOfMassVelocity += particle.velocity * particle.mass;
-			totalMass += particle.mass;
-		}
-
-		// Calculate the center of mass
-		centerOfMass /= totalMass;
-		centerOfMassVelocity /= totalMass;
-
-		// Move the positions relative to the center of mass
-		for (auto& particle : particles_)
-		{
-			particle.position -= centerOfMass;
-			particle.velocity -= centerOfMassVelocity;
-		}
+		return r <= rCutOff;
 	}
 };
 

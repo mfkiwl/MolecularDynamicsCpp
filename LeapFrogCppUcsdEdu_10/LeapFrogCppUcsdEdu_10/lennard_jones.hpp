@@ -28,7 +28,11 @@ public:
 		real r_mag = distance.magnitude();
 		real s_over_r = sigma / r_mag;
 		real s_over_r6 = pow(s_over_r, 6);
-		return epsilon * (s_over_r6 * s_over_r6 - 2.0 * s_over_r6);
+		real s_over_r12 = s_over_r6 * s_over_r6;
+		real ep05 = 0.5 * epsilon;
+		real r12_6 = s_over_r12 - (2.0 * s_over_r6);
+		real returns = ep05 * r12_6;
+		return returns;
 	}
 
 	real getPotentialAttractive(const Vec3& distance) const
@@ -36,7 +40,7 @@ public:
 		real r_mag = distance.magnitude();
 		real s_over_r = sigma / r_mag;
 		real s_over_r6 = pow(s_over_r, 6);
-		real attrPotential = (-2.0) * epsilon * s_over_r6;
+		real attrPotential = 0.5* (-2.0) * epsilon * s_over_r6;
 		return attrPotential;
 	}
 
@@ -45,40 +49,22 @@ public:
 		real r_mag = distance.magnitude();
 		real s_over_r = sigma / r_mag;
 		real s_over_r12 = pow(s_over_r, 12);
-		real repPotential = epsilon * s_over_r12;
+		real repPotential = 0.5*epsilon * s_over_r12;
 		return repPotential;
 	}
-
-	//Vec3 getForceApprox(const Vec3& distance) const
-	//{
-	//	// Define a small distance for the derivative approximation
-	//	real dr = 1e-6;
-	//	Vec3 force;
-	//	std::vector<Vec3> r_plus_dr = { distance, distance, distance };
-	//	r_plus_dr[0].x += dr;
-	//	r_plus_dr[1].y += dr;
-	//	r_plus_dr[2].z += dr;
-	//
-	//	// The force is the negative derivative of the potential energy
-	//	force.x = -(getPotential(r_plus_dr[0]) - getPotential(distance)) / dr;
-	//	force.y = -(getPotential(r_plus_dr[1]) - getPotential(distance)) / dr;
-	//	force.z = -(getPotential(r_plus_dr[2]) - getPotential(distance)) / dr;
-	//	return force;
-	//}
 
 	Vec3 getForce(Vec3 distance) const
 	{
 		real r_mag = distance.magnitude();
 		real s_over_r = sigma / r_mag;
-		real s_over_r6 = s_over_r * s_over_r * s_over_r * s_over_r * s_over_r * s_over_r;
+		real s_over_r6 = pow(s_over_r, 6);
 		real s_over_r12 = s_over_r6 * s_over_r6;
-		real factor = 24.0 * epsilon * (2.0 * s_over_r12 - s_over_r6) / (r_mag * r_mag * r_mag);
+		
+		real fx = (12.0 * epsilon * (s_over_r12 - s_over_r6)) * ((distance.x) / (r_mag * r_mag));
+		real fy = (12.0 * epsilon * (s_over_r12 - s_over_r6)) * ((distance.y) / (r_mag * r_mag));
+		real fz = (12.0 * epsilon * (s_over_r12 - s_over_r6)) * ((distance.z) / (r_mag * r_mag));
 
-		Vec3 force;
-		force.x = factor * distance.x;
-		force.y = factor * distance.y;
-		force.z = factor * distance.z;
-		return force;
+		return Vec3(fx, fy, fz);
 	}
 
 	Vec3 getAcceleration(const Vec3& distance, double mass) const
@@ -89,7 +75,9 @@ public:
 
 	real getKineticEnergy(real mass, const Vec3& velocity) const
 	{
-		return 0.5 * mass * velocity.magnitudeSquared();
+		real magSq = velocity.magnitudeSquared();
+		real returns = 0.5 * 0.5 * mass * magSq;
+		return returns;
 	}
 
 	real getTotalEnergy(real mass, const Vec3& distance, const Vec3& velocity) const
