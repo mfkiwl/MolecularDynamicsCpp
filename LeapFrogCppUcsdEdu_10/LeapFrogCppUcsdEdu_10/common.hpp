@@ -36,6 +36,8 @@ public:
 	static const std::string ENERGY_FILE;
 
 	static const real TOLERANCE;
+
+	static const real NEIGHBOR_RADIUS;
 };
 
 

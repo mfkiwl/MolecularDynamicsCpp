@@ -24,6 +24,7 @@ public:
 		system_.mass = Constants::ATOMIC_MASS;
 		system_.sigma = Constants::SIGMA;
 		system_.rCutOff = Constants::R_CUTOFF;
+		system_.neighRadius = Constants::NEIGHBOR_RADIUS;
 
 		system_.initialize(Constants::N, Constants::T0);
 

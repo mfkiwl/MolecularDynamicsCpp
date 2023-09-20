@@ -31,6 +31,6 @@ const std::string Constants::ENERGY_FILE = "energy.txt";
 
 const real Constants::TOLERANCE = 0.000000000001;
 
-
+const real Constants::NEIGHBOR_RADIUS = 90;
 
 #endif

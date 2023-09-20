@@ -213,6 +213,7 @@ private:
 		for (auto& particle : particles_)
 		{
 			particle.position -= centerOfMass;
+			//TODO: apply PBC
 			particle.velocity -= centerOfMassVelocity;
 		}
 	}
