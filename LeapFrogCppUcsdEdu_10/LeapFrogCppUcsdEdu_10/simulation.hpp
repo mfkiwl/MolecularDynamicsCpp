@@ -18,7 +18,7 @@ private:
 public:
 	Simulation()
 	{
-		system_.dimension = Constants::SIM_BOX_DIMENSION;
+		system_.dimension = Constants::SIM_BOX_DIM;
 		system_.epsilon = Constants::EPSILON;
 		system_.kB = Constants::KB;
 		system_.mass = Constants::ATOMIC_MASS;
