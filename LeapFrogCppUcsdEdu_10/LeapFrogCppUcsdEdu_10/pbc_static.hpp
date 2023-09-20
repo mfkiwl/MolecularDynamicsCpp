@@ -2,4 +2,4 @@
 
 #include "pbc.hpp"
 
-real PBC::boxLength = Constants::BOX_SIZE;
+real PBC::boxLength = Constants::SIM_BOX_DIMENSION;

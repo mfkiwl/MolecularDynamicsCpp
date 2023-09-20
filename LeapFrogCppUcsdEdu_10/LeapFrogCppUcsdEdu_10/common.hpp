@@ -17,29 +17,27 @@ public:
 	static const real EPSILON;
 	static const real SIGMA;
 	static const real ATOMIC_MASS;
-	static const int SAVE_TRAJECTORY;
-	static const int SAVE_ENERGY;
-	static const int TEMP_ADJUST_STEP;
+	static const int SAVE_TRAJECTORY_FREQ;
+	static const int SAVE_ENERGY_FREQ;
+	static const int ADJUST_TEMP_FREQ;
 	static const real DELTA_TEMP;
 
-	static const int N;  // number of particles
-	static const real BOX_SIZE; // size of the simulation box
+	static const int N_PARTICLES;  // number of particles
+	static const real SIM_BOX_DIMENSION; // size of the simulation box
 	static const real MAX_VELOCITY;   // maximum initial velocity
 	static const real R_CUTOFF;
 
-	static const real DT;   // time step
+	static const real DELTA_TIME;   // time step
 	static const int N_STEPS;   // number of time steps
-	static const real T0; // initial temperature in KB
-	static const real TEMP_TARGET; // target temperature in KB
+	static const real INIT_TEMPTR; // initial temperature in KB
+	static const real TARGET_TEMPTR; // target temperature in KB
 
 	static const std::string TRAJECTORY_FILE;
 	static const std::string ENERGY_FILE;
 
-	static const real TOLERANCE;
+	static const real UNIT_TEST_TOLERANCE;
 
 	static const real NEIGHBOR_RADIUS;
 };
-
-
 
 #endif // !COMMON_HPP

@@ -18,7 +18,7 @@ private:
 public:
 	Simulation()
 	{
-		system_.dimension = Constants::BOX_SIZE;
+		system_.dimension = Constants::SIM_BOX_DIMENSION;
 		system_.epsilon = Constants::EPSILON;
 		system_.kB = Constants::KB;
 		system_.mass = Constants::ATOMIC_MASS;
@@ -26,7 +26,7 @@ public:
 		system_.rCutOff = Constants::R_CUTOFF;
 		system_.neighRadius = Constants::NEIGHBOR_RADIUS;
 
-		system_.initialize(Constants::N, Constants::T0);
+		system_.initialize(Constants::N_PARTICLES, Constants::INIT_TEMPTR);
 
 		FileIO::clearFile(Constants::TRAJECTORY_FILE);
 		FileIO::clearFile(Constants::ENERGY_FILE);
@@ -39,7 +39,7 @@ public:
 		{
 			std::cout << "Step : " << step << std::endl;
 
-			Integrator::Lepfrog(system_.getParticles(), Constants::DT);
+			Integrator::Lepfrog(system_.getParticles(), Constants::DELTA_TIME);
 
 			FileIO::writeTrajectoryToFile(Constants::TRAJECTORY_FILE, system_.getParticles());
 			

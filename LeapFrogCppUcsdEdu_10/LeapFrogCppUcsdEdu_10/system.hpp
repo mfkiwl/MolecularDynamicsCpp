@@ -214,6 +214,7 @@ private:
 		{
 			particle.position -= centerOfMass;
 			//TODO: apply PBC
+			PBC::Apply(particle.position);//apply periodic bounddary condition
 			particle.velocity -= centerOfMassVelocity;
 		}
 	}
