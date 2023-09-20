@@ -49,6 +49,8 @@ public:
 			FileIO::writeEnergyToFile(Constants::ENERGY_FILE, energyData_);
 
 			////system_.scaleTemperature(Constants::DELTA_TEMP);
+
+			system_.buildNeighborList();
 		}
 
 		std::cout << "\n\n\nSimulation is complete!" << std::endl;

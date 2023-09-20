@@ -33,6 +33,8 @@ public:
 			Particle& particle = particles_[i];
 			particle.position += dt * particle.velocity; // full position step
 
+			PBC::Apply(particle.position); //apply periodic boundary condition
+
 			Vec3 acceleration;
 			for (int j = 0; j < n_particles; j++)
 			{

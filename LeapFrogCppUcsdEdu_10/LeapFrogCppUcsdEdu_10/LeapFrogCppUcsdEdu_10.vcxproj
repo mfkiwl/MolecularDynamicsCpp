@@ -123,12 +123,14 @@
     <ClInclude Include="integrator.hpp" />
     <ClInclude Include="lennard_jones.hpp" />
     <ClInclude Include="particle.hpp" />
+    <ClInclude Include="pbc_static.hpp" />
     <ClInclude Include="system.hpp" />
     <ClInclude Include="simulation.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="common_statics.hpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pbc.hpp" />
     <ClCompile Include="vec3.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

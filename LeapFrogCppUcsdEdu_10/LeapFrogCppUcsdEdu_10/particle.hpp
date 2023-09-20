@@ -4,11 +4,13 @@
 #include "common.hpp"
 #include "vec3.hpp"
 #include "lennard_jones.hpp"
+#include "pbc.hpp"
 
 class Particle
 {
 private:
 	LennardJones lj_;
+	std::vector<Particle> neighborList_;
 
 public:
 	int number;
@@ -16,6 +18,7 @@ public:
 	Vec3 position;
 	Vec3 velocity;
 	real temperature;
+	real neighborRadius;
 
 	Particle()
 	{
@@ -26,11 +29,11 @@ public:
 		temperature = 0;
 	}
 
-	Particle(int number, real mass, real epsilon, real sigma, real kB, const Vec3& position, const Vec3& velocity)
-		: number(number), lj_(epsilon, sigma, kB), mass(mass), position(position), velocity(velocity) {}
+	Particle(int number, real mass, real epsilon, real sigma, real kB, const Vec3& position, const Vec3& velocity, const real neighborRadius)
+		: number(number), lj_(epsilon, sigma, kB), mass(mass), position(position), velocity(velocity), neighborRadius(neighborRadius){}
 
 	Particle(const Particle& other)
-		: lj_(other.lj_), number(other.number), mass(other.mass), position(other.position), velocity(other.velocity), temperature(other.temperature) {}
+		: lj_(other.lj_), neighborList_(other.neighborList_), number(other.number), mass(other.mass), position(other.position), velocity(other.velocity), temperature(other.temperature), neighborRadius(other.neighborRadius) {}
 
 	Particle& operator=(const Particle& other)
 	{
@@ -42,6 +45,8 @@ public:
 			position = other.position;
 			velocity = other.velocity;
 			temperature = other.temperature;
+			neighborRadius = other.neighborRadius;
+			neighborList_ = other.neighborList_;
 		}
 		return *this;
 	}
@@ -94,6 +99,32 @@ public:
 		Vec3 distance = temp.position - other.position;
 		double r = distance.magnitude();
 		return r <= rCutOff;
+	}
+
+	void buildNeighborList(std::vector<Particle>& particles)
+	{
+		int n_particles = particles.size();
+		this->neighborList_.clear();
+
+		Particle &particle = *this;
+
+		for (int i = 0; i < n_particles; i++)
+		{
+			Particle &other = particles[i];
+			Vec3 distance = particle.position - other.position;
+			
+			PBC::Apply(distance);
+
+			if (distance.magnitudeSquared() < neighborRadius)
+			{
+				particle.neighborList_.push_back(other);
+			}
+		}		
+	}
+
+	const std::vector<Particle>& getNeighborList() const
+	{
+		return neighborList_;
 	}
 };
 

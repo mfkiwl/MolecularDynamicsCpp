@@ -25,6 +25,7 @@ public:
 	real mass;
 	real kB;
 	real rCutOff;
+	real neighRadius;
 
 	System()
 	{
@@ -34,10 +35,11 @@ public:
 		mass = 0;
 		kB = 0;
 		rCutOff = 0;
+		neighRadius = 0;
 	}
 
-	System(real sigma, real epsilon, real mass, real kB, real dimension, real rCutOff): 
-		sigma(sigma), epsilon(epsilon), mass(mass), kB(kB), dimension(dimension), rCutOff(rCutOff)
+	System(real sigma, real epsilon, real mass, real kB, real dimension, real rCutOff, real neighRadius):
+		sigma(sigma), epsilon(epsilon), mass(mass), kB(kB), dimension(dimension), rCutOff(rCutOff), neighRadius(neighRadius)
 	{
 	}
 
@@ -75,13 +77,17 @@ public:
 						// initialize position
 						Vec3 position;
 
+						//TODO: initialize position.
+
+						PBC::Apply(position);//apply periodic bounddary condition
+
 						// initialize velocity
 						Vec3 velocity;
 						velocity.x = dist(gen);
 						velocity.y = dist(gen);
 						velocity.z = dist(gen);
 
-						Particle atom(particleCount_, mass, epsilon, sigma, kB, position, velocity);
+						Particle atom(particleCount_, mass, epsilon, sigma, kB, position, velocity, neighRadius);
 
 						particles_.push_back(atom);
 
@@ -96,23 +102,24 @@ public:
 
 	EnergyData computeEnergy(int step_no)
 	{
-		Vec3 totalAcceleration_;
-		real totalPotentialEnergyRepulsive_;
-		real totalPotentialEnergyAttractive_;
-		real totalPotentialEnergy_;
-		real totalKineticEnergy_;
-		real totalEnergy_;
-		real currentTemperature_;
+		Vec3 totalAcceleration_(0, 0, 0);
+		real totalPotentialEnergyRepulsive_ = 0;
+		real totalPotentialEnergyAttractive_ = 0;
+		real totalPotentialEnergy_ = 0;
+		real totalKineticEnergy_ = 0;
+		real totalEnergy_ = 0;
+		real currentTemperature_ = 0;
 
 		int n_particles = particles_.size();
 
 		for (size_t i = 0; i < n_particles; i++)
 		{
 			const Particle& particle = particles_[i];
+			const std::vector<Particle> neighborList = particle.getNeighborList();
 
 			for (size_t j = i + 1; j < n_particles; j++)
 			{
-				const Particle& other = particles_[j];			
+				const Particle& other = neighborList[j];
 
 				if (particle.isWithinCutOff(other, rCutOff))
 				{
@@ -140,6 +147,15 @@ public:
 		data.PotEngyBalloon = 0 * 0.5;
 
 		return data;
+	}
+
+	void buildNeighborList()
+	{
+		int n_particles = particles_.size();
+		for (size_t i = 0; i < n_particles; i++)
+		{
+			particles_[i].buildNeighborList(particles_);
+		}
 	}
 
 	double getTemperature()

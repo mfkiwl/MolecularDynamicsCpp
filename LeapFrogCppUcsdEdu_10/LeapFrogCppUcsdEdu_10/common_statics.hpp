@@ -2,6 +2,7 @@
 #define COMMON_STATIC_HPP
 #include "common.hpp"
 
+
 const real Constants::KB = 8.6173324e-5;
 const real Constants::SIGMA = 0.369;
 const real Constants::EPSILON = 1.19;
@@ -29,4 +30,7 @@ const std::string Constants::TRAJECTORY_FILE = "trajectory.txt";
 const std::string Constants::ENERGY_FILE = "energy.txt";
 
 const real Constants::TOLERANCE = 0.000000000001;
+
+
+
 #endif
