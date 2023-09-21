@@ -9,11 +9,14 @@ public:
 	static real boxLength;
 
 	// Applies the periodic boundary condition to a single value
-	static void Apply(real& value) {
-		if (value < 0) {
+	static void Apply(real& value) 
+	{
+		if (value < 0) 
+		{
 			value += boxLength;
 		}
-		else if (value >= boxLength) {
+		else if (value >= boxLength) 
+		{
 			value -= boxLength;
 		}
 	}
