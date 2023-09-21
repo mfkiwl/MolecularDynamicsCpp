@@ -20,8 +20,8 @@ const real Constants::DELTA_TIME = 0.01; // time step
 const real Constants::R_CUTOFF = 0.9;
 const real Constants::NEIGHBOR_RADIUS = 90;
 
-const real Constants::INIT_TEMPTR = 70.0 * KB; // initial temperature in KB
-const real Constants::TRGT_TEMPTR = 300.0 * KB; // target temperature in KB
+const real Constants::INIT_TEMPTR = 70.0; // initial temperature in KB
+const real Constants::TRGT_TEMPTR = 300.0; // target temperature in KB
 const real Constants::DLTA_TEMPTR = 50.00;
 
 const std::string Constants::TRAJECTORY_FILE = "trajectory.txt";

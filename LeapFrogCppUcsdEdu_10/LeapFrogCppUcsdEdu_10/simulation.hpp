@@ -26,7 +26,7 @@ public:
 		system_.rCutOff = Constants::R_CUTOFF;
 		system_.neighRadius = Constants::NEIGHBOR_RADIUS;
 
-		system_.initialize(Constants::N_PARTICLES, Constants::INIT_TEMPTR);
+		system_.initialize(Constants::INIT_TEMPTR);
 
 		FileIO::clearFile(Constants::TRAJECTORY_FILE);
 		FileIO::clearFile(Constants::ENERGY_FILE);

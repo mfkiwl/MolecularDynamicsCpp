@@ -42,10 +42,11 @@ public:
 		sigma(sigma), epsilon(epsilon), mass(mass), kB(kB), dimension(dimension), rCutOff(rCutOff), neighRadius(neighRadius)
 	{
 	}
-
 	
-	void initialize(int n_particles, real T0)
+	void initialize(real T0)
 	{
+		particles_.clear();
+
 		// Calculate the variance
 		double var = std::sqrt((6 * kB * T0) / mass);
 		// Random number generator
@@ -54,48 +55,49 @@ public:
 		std::uniform_real_distribution<double> dist(-var, var);
 
 		// initialize grid...
-		double a = 0.5 * std::sqrt(2); // Length unit a
+		double a = sigma / std::sqrt(2); // Length unit a
 
-		// Coordinates of atoms in the elementary cell
-		Vec3 atom1 = { 0.5 * a, 0.5 * a, 0.5 * a };
-		Vec3 atom2 = { 0.5 * a, 1.5 * a, 1.5 * a };
-		Vec3 atom3 = { 1.5 * a, 0.5 * a, 1.5 * a };
-		Vec3 atom4 = { 1.5 * a, 1.5 * a, 0.5 * a };
-
-		int particleCount_ = 0;
+		int particle_no = 0;
 
 		// Create the grid of atoms
 		// 6*6*6*4 = 864
-		for (int x = 0; x < dimension; x++) 
+		for (int i = 0; i < dimension; i++)
 		{
-			for (int y = 0; y < dimension; y++)
+			for (int j = 0; j < dimension; j++)
 			{
-				for (int z = 0; z < dimension; z++)
+				for (int k = 0; k < dimension; k++)
 				{
-					for (size_t i = 0; i < 4; i++)
-					{
-						// initialize position
-						Vec3 position;
+					// initialize position
+					//TODO: initialize position.
+					Vec3 position1((i + 0.5) * a, (j + 0.5) * a, (k + 0.5) * a );
+					Vec3 position2((i + 0.5) * a, (j + 1.5) * a, (k + 1.5) * a );
+					Vec3 position3((i + 1.5) * a, (j + 0.5) * a, (k + 1.5) * a );
+					Vec3 position4((i + 1.5) * a, (j + 1.5) * a, (k + 0.5) * a );
+					
+					//apply periodic bounddary condition
+					PBC::Apply(position1);
+					PBC::Apply(position2);
+					PBC::Apply(position3);
+					PBC::Apply(position4);
 
-						//TODO: initialize position.
+					// initialize velocity
+					Vec3 velocity1(dist(gen), dist(gen), dist(gen));
+					Vec3 velocity2(dist(gen), dist(gen), dist(gen));
+					Vec3 velocity3(dist(gen), dist(gen), dist(gen));
+					Vec3 velocity4(dist(gen), dist(gen), dist(gen));
 
-						PBC::Apply(position);//apply periodic bounddary condition
+					Particle atom1(particle_no++, mass, epsilon, sigma, kB, position1, velocity1, neighRadius);
+					Particle atom2(particle_no++, mass, epsilon, sigma, kB, position2, velocity2, neighRadius);
+					Particle atom3(particle_no++, mass, epsilon, sigma, kB, position3, velocity3, neighRadius);
+					Particle atom4(particle_no++, mass, epsilon, sigma, kB, position4, velocity4, neighRadius);
 
-						// initialize velocity
-						Vec3 velocity;
-						velocity.x = dist(gen);
-						velocity.y = dist(gen);
-						velocity.z = dist(gen);
-
-						Particle atom(particleCount_, mass, epsilon, sigma, kB, position, velocity, neighRadius);
-
-						particles_.push_back(atom);
-
-						particleCount_++;
-					}										
+					particles_.push_back(atom1);
+					particles_.push_back(atom2);
+					particles_.push_back(atom3);
+					particles_.push_back(atom4);
 				}
 			}
-		}
+		}		
 
 		MoveToCenterOfMass();
 	}
@@ -158,26 +160,27 @@ public:
 		}
 	}
 
-	double getTemperature()
+	real getTemperature()
 	{
 		int n_particles = particles_.size();
-		real currentTemperature = 0.0;
+		real dimension = 3.0;
+		real v_sq_sum = 0.0;
 		for (int i = 0; i < n_particles; i++)
 		{
-			real lenSq = particles_[i].velocity.magnitudeSquared();
-
-			currentTemperature += 0.5 * mass * lenSq / n_particles;
+			v_sq_sum += particles_[i].velocity.magnitudeSquared();
 		}
-		return currentTemperature;
+		real returns = (mass / (dimension * kB)) * (v_sq_sum/n_particles);
+		return returns;
 	}
-
-	void scaleTemperature(real targetTemperature)
+	
+	// https://www.ucl.ac.uk/~ucfbasc/Theory/tscale.html
+	void setTemperature(real expectedTemperature)
 	{
 		int n_particles = particles_.size();
 
 		real currentTemperature = getTemperature();
 
-		real scalingFactor = std::sqrt(targetTemperature / currentTemperature);
+		real scalingFactor = std::sqrt(expectedTemperature / currentTemperature);
 
 		for (int i = 0; i < n_particles; i++)
 		{

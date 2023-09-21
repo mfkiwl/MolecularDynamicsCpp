@@ -75,8 +75,8 @@ public:
 
 	real getKineticEnergy(real mass, const Vec3& velocity) const
 	{
-		real magSq = velocity.magnitudeSquared();
-		real returns = 0.5 * 0.5 * mass * magSq;
+		real v_squared = velocity.magnitudeSquared();
+		real returns = 0.5 * 0.5 * mass * v_squared;
 		return returns;
 	}
 
