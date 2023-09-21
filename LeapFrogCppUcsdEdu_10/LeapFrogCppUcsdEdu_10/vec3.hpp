@@ -46,8 +46,20 @@ public:
 		return Vec3(x * scalar, y * scalar, z * scalar);
 	}
 
+	Vec3 operator*(const Vec3& other) const {
+		return Vec3(x * other.x, y * other.y, z * other.z);
+	}
+
+	Vec3 pow(double scalar) const {
+		return Vec3(std::pow(x, scalar), std::pow(y, scalar), std::pow(z, scalar));
+	}
+
 	Vec3 operator/(double scalar) const {
 		return Vec3(x / scalar, y / scalar, z / scalar);
+	}
+
+	Vec3 operator/(const Vec3& other) const {
+		return Vec3(x / other.x, y / other.y, z / other.z);
 	}
 
 	Vec3& operator+=(const Vec3& other) {
