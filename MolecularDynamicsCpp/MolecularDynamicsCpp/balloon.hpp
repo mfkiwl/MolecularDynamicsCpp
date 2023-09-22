@@ -35,9 +35,9 @@ public:
 
 			real pos_mag = position.magnitude();
 
-			force.x = (force.x / pos_mag) * (-1.0) * BalloonConstant * ri_rB;
-			force.y = (force.y / pos_mag)  * (-1.0) * BalloonConstant * ri_rB;
-			force.z = (force.z / pos_mag) * (-1.0) * BalloonConstant * ri_rB;
+			force.x = ((force.x / pos_mag) * (-1.0) * BalloonConstant * ri_rB).x;
+			force.y = ((force.y / pos_mag)  * (-1.0) * BalloonConstant * ri_rB).y;
+			force.z = ((force.z / pos_mag) * (-1.0) * BalloonConstant * ri_rB).z;
 		}
 		else
 		{
