@@ -26,6 +26,7 @@ public:
 	static const real SIM_BOX_DIM; // size of the simulation box
 	static const real MAX_VELOCITY;   // maximum initial velocity
 	static const real R_CUTOFF;
+	static const real BALLOON_CONST;
 
 	static const real DELTA_TIME;   // time step
 	static const int N_STEPS;   // number of time steps
@@ -38,6 +39,8 @@ public:
 	static const real UNIT_TEST_TOLERANCE;
 
 	static const real NEIGHBOR_RADIUS;
+	static const real RADIUS_RADIUS;
+	static const real BALLOON_RADIUS;
 };
 
 #endif // !COMMON_HPP
