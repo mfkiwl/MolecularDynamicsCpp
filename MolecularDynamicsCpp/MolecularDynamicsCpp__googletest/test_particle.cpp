@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "header.h"
+#include "..\MolecularDynamicsCpp\common_statics.hpp"
 
 TEST(TestParticle, TestIsWithinCutOff)
 {

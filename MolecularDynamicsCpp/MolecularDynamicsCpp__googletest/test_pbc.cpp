@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "header.h"
-#include "../LeapFrogCppUcsdEdu_10/pbc.hpp"
-#include "../LeapFrogCppUcsdEdu_10/pbc_static.hpp"
+#include "../MolecularDynamicsCpp/pbc.hpp"
+#include "../MolecularDynamicsCpp/pbc_static.hpp"
 
 TEST(TestPBC, TestApply)
 {
