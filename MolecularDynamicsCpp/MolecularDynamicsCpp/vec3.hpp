@@ -46,6 +46,11 @@ public:
 		return Vec3(x * scalar, y * scalar, z * scalar);
 	}
 
+	friend Vec3 operator*(double scalar, const Vec3& vector) 
+	{
+		return Vec3(vector.x * scalar, vector.y * scalar, vector.z * scalar);
+	}
+
 	Vec3 operator*(const Vec3& other) const {
 		return Vec3(x * other.x, y * other.y, z * other.z);
 	}
@@ -56,6 +61,11 @@ public:
 
 	Vec3 operator/(double scalar) const {
 		return Vec3(x / scalar, y / scalar, z / scalar);
+	}
+
+	friend Vec3 operator/(double scalar, const Vec3& vector)
+	{
+		return Vec3(vector.x / scalar, vector.y / scalar, vector.z / scalar);
 	}
 
 	Vec3 operator/(const Vec3& other) const {
@@ -119,14 +129,6 @@ public:
 		std::stringstream ss;
 		ss << "(" << x << "," << y << "," << z << ")";
 		return ss.str();
-	}
-
-	friend Vec3 operator*(double scalar, const Vec3& vec) {
-		return Vec3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
-	}
-
-	friend Vec3 operator/(double scalar, const Vec3& vec) {
-		return Vec3(vec.x / scalar, vec.y / scalar, vec.z / scalar);
 	}
 
 	void print() {

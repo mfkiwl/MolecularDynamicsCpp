@@ -9,31 +9,35 @@ public:
 	static real BalloonConstant;
 	static real baloonRadius;
 public:
-	static void ApplyPotential(Vec3& potential)
+	static void ApplyPotential(Vec3& position)
 	{		
-		if (potential.magnitude() > baloonRadius)
+		if (position.magnitude() > baloonRadius)
 		{
-			Vec3 ri_rB( potential.x - baloonRadius, 
-						potential.y - baloonRadius, 
-						potential.z - baloonRadius);
+			Vec3 ri_rB( position.x - baloonRadius, 
+						position.y - baloonRadius, 
+						position.z - baloonRadius);
 			
-			potential = 0.5 * BalloonConstant * (ri_rB * ri_rB);
+			position = 0.5 * BalloonConstant * (ri_rB * ri_rB);
 		}
 		else
 		{
-			potential = Vec3(0, 0, 0);
+			position = Vec3(0, 0, 0);
 		}
 	}
 
-	static void ApplyForce(Vec3& force)
+	static void ApplyForce(Vec3& force, Vec3& position)
 	{
 		if (force.magnitude() > baloonRadius)
 		{
-			Vec3 ri_rB(	force.x - baloonRadius,
-						force.y - baloonRadius,
-						force.z - baloonRadius);
+			Vec3 ri_rB(	position.x - baloonRadius,
+						position.y - baloonRadius,
+						position.z - baloonRadius);
 
-			force = (-1.0) * BalloonConstant * ri_rB * (force.magnitude() / force);
+			real pos_mag = position.magnitude();
+
+			force.x = (force.x / pos_mag) * (-1.0) * BalloonConstant * ri_rB;
+			force.y = (force.y / pos_mag)  * (-1.0) * BalloonConstant * ri_rB;
+			force.z = (force.z / pos_mag) * (-1.0) * BalloonConstant * ri_rB;
 		}
 		else
 		{
