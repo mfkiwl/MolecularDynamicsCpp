@@ -45,6 +45,9 @@
     <ClInclude Include="pbc_static.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="balloon.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="vec3.hpp">
